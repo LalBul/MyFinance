@@ -17,11 +17,12 @@ import WatchConnectivity
 class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var mainTableView: UITableView!
+    @IBOutlet weak var preparedTableView: UITableView!
     @IBOutlet weak var limitTodayLabel: UILabel!
     @IBOutlet weak var addLimitButton: UIBarButtonItem!
     
     var realm = try! Realm()
-    var categoryArray: Results<Category>?
+    var categoryArray: Results<Categories>?
     let defaults = UserDefaults.standard
     var session: WCSession?
     
@@ -32,14 +33,16 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         configureWatchKitSesstion()
         sendAWData()
         
-        let delegate = ContentViewDelegate()
+        preparedTableView.delegate = self
+        preparedTableView.dataSource = self
+        preparedTableView.backgroundColor = UIColor.clear
+        preparedTableView.layer.cornerRadius = 15
+        preparedTableView.rowHeight = 60
         
-        let widgetVC = UIHostingController(rootView: MyFinanceWidgetEntryView(entry: .init(date: Date()), delegate: delegate))
-        
-        mainTableView.backgroundColor = UIColor.clear
         mainTableView.delegate = self
         mainTableView.dataSource = self
-        mainTableView.layer.cornerRadius = 20
+        mainTableView.backgroundColor = UIColor.clear
+        mainTableView.layer.cornerRadius = 10
         mainTableView.rowHeight = 60
         
         navigationController?.navigationBar.barTintColor = view.backgroundColor
@@ -50,12 +53,15 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     override func viewWillAppear (_ animated: Bool) {
-        sendAWData()
         super.viewWillAppear(animated)
+        sendAWData()
         setGradientBackground()
         checkLimit()
         updateChartData()
     }
+    
+    private var blurEffectView = UIVisualEffectView()
+    private var tap = UITapGestureRecognizer()
     
     func checkLimit() {
         let limit = defaults.double(forKey: "Limit")
@@ -70,9 +76,14 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    @objc func tapMainView(recognizer: UITapGestureRecognizer){
+        backAnimate()
+        tap.isEnabled = false
+    }
+    
     //MARK: - Present Limit View
     
-    @IBOutlet var startLimitView: UIView!
+    @IBOutlet weak var startLimitView: UIView!
     @IBOutlet weak var limitLabel: UILabel!
     @IBOutlet weak var limitLabelView: UIView!
     
@@ -121,7 +132,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         
         var downloadDataEnty: [PieChartDataEntry] = []
         var colors: [UIColor] = []
-        categoryArray = realm.objects(Category.self)
+        categoryArray = realm.objects(Categories.self)
         
         if let array = categoryArray {
             for i in array {
@@ -150,7 +161,9 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         
     }
     
-    func setGradientBackground() { // Градиент
+    //MARK: - Gradient
+    
+    func setGradientBackground() {
         let colorTop = UIColor(hexString: "213C66")!.darken(byPercentage: 0.15)!.cgColor
         let colorBottom = UIColor(.black).cgColor
         let gradientLayer = CAGradientLayer()
@@ -169,9 +182,6 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var colorViewText: UILabel!
     @IBOutlet weak var categoryText: UITextField!
     @IBOutlet weak var colorButton: UIButton!
-    
-    private var blurEffectView = UIVisualEffectView()
-    private var tap = UITapGestureRecognizer()
     
     @IBOutlet weak var addCategoryOutlet: UIBarButtonItem!
     @IBAction func addCategory(_ sender: UIBarButtonItem) {
@@ -199,7 +209,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         categoryText.attributedPlaceholder = NSAttributedString(string: "Category name", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
         
         view.addSubview(addCategoryView)
-        view.addGestureRecognizer(tap)
+        blurEffectView.addGestureRecognizer(tap)
         
         addCategoryOutlet.isEnabled = false
         
@@ -214,7 +224,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
             if let color = colorView.backgroundColor {
                 colorHex = color.hexValue()
             }
-            let newCategory = Category()
+            let newCategory = Categories()
             newCategory.title = category
             newCategory.color = colorHex
             do {
@@ -250,11 +260,6 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         view.addSubview(blurEffectView)
     }
     
-    @objc func tapMainView(recognizer: UITapGestureRecognizer){
-        backAnimate()
-        tap.isEnabled = false
-    }
-    
     //MARK: - Color Settings
     
     @IBOutlet weak var colorSettingsUIView: UIView!
@@ -267,6 +272,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBAction func toColourSettings(_ sender: UIButton) {
         
         tap.isEnabled = false
+        self.view.endEditing(true)
         
         demonstrationView.layer.cornerRadius = 10
         demonstrationViewText.font = UIFont.boldSystemFont(ofSize: 20)
@@ -325,26 +331,54 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
 
 extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, SwipeTableViewCellDelegate {
     
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 0
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView()
+        headerView.backgroundColor = UIColor.clear
+        return headerView
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if categoryArray!.count <= 5 {
-            mainTableView.isScrollEnabled = false
+        if tableView == mainTableView {
+            if categoryArray!.count <= 3 {
+                mainTableView.isScrollEnabled = false
+            } else {
+                mainTableView.isScrollEnabled = true
+            }
+            return categoryArray?.count ?? 2
+        } else if tableView == preparedTableView {
+            preparedTableView.isScrollEnabled = false
+            return 1
         } else {
-            mainTableView.isScrollEnabled = true
+            return 0
         }
-        return categoryArray?.count ?? 0
+        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! SwipeTableViewCell
-        cell.delegate = self
-        cell.textLabel?.textColor = .white
-        cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 20)
-        if let category = categoryArray?[indexPath.row] {
-            cell.textLabel?.text = category.title
-            cell.contentView.backgroundColor = HexColor(category.color)
+        if tableView == mainTableView {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! CategoryCell
+            cell.delegate = self
+            if let category = categoryArray?[indexPath.row] {
+                cell.layer.borderColor = UIColor.black.cgColor
+                cell.layer.borderWidth = 0.25
+                cell.contentView.backgroundColor = HexColor(category.color)
+                cell.categoryName.text = category.title
+            }
+            return cell
+        } else if tableView == preparedTableView {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "AllPurchasesCell", for: indexPath)
+            return cell
+        } else {
+            return UITableViewCell()
         }
-        
-        return cell
+    }
+    
+    @objc func doubleTappedCell() {
+        print("what")
     }
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
@@ -367,7 +401,11 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: "goToItems", sender: self)
+        if tableView == mainTableView {
+            performSegue(withIdentifier: "goToItems", sender: self)
+        } else if tableView == preparedTableView {
+            performSegue(withIdentifier: "goToAllPurchases", sender: self)
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -421,18 +459,18 @@ extension MainScreenViewController: WCSessionDelegate {
         }
     }
     
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        if let error = error {
+            print(error)
+        }
+    }
+    
     func sessionDidBecomeInactive(_ session: WCSession) {
         
     }
     
     func sessionDidDeactivate(_ session: WCSession) {
         
-    }
-    
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        if let error = error {
-            print(error)
-        }
     }
 }
 

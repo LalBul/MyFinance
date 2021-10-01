@@ -12,5 +12,5 @@ class Items: Object {
     @objc dynamic var title: String = ""
     @objc dynamic var date: Date?
     @objc dynamic var amount: Double = 0
-    var parentCategory = LinkingObjects(fromType: Category.self, property: "items")
+    var parentCategory = LinkingObjects(fromType: Categories.self, property: "items")
 }

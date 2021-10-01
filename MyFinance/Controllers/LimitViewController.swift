@@ -55,4 +55,19 @@ class LimitViewController: UIViewController {
         pointBool = true
     }
     
+    
+    @IBAction func swipeRightDeleteAmount(_ sender: UISwipeGestureRecognizer) {
+        deleteLastSymbolLabel()
+    }
+    
+    @IBAction func swipeLeftDeleteAmount(_ sender: UISwipeGestureRecognizer) {
+        deleteLastSymbolLabel()
+    }
+    
+    func deleteLastSymbolLabel() {
+        if numberLabel.text != "" {
+            numberLabel.text?.removeLast()
+        } 
+    }
+    
 }

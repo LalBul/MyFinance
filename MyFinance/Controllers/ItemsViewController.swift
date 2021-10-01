@@ -31,7 +31,7 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
     
     let realm = try! Realm()
     var items: Results<Items>?
-    var selectedCategory: Category?
+    var selectedCategory: Categories?
     let defaults = UserDefaults.standard
     var defaultValue: Double = 0
     
@@ -62,7 +62,7 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
         wasteTextField.attributedPlaceholder = NSAttributedString(string: "What did you spend it on?", attributes: [NSAttributedString.Key.foregroundColor : UIColor.darkGray, NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 15)])
         wasteTextField.layer.cornerRadius = 15
         
-        amountTextField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+        amountTextField.attributedPlaceholder = NSAttributedString(string: "Amount", attributes: [NSAttributedString.Key.foregroundColor : UIColor.darkGray])
         amountTextField.layer.cornerRadius = 20
         amountTextField.keyboardType = .decimalPad
         
@@ -78,7 +78,7 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
         
         UIView.animate(withDuration: 0.25) {
             self.addItemView.center.y = 250
-            self.addItemView.center.x = 187.5
+            self.addItemView.center.x = self.view.center.x
             self.addItemView.transform = CGAffineTransform.identity
             sender.isEnabled = false
         }
@@ -147,10 +147,10 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
         cell.delegate = self
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
-        if let item = items?[indexPath.row], let itemDate = items?[indexPath.row].date {
+        if let item = items?[indexPath.row] {
             cell.buyName.text = item.title
             cell.buyPrice.text = String(item.amount)
-            cell.buyDate.text = formatter.string(from: itemDate)
+            cell.buyDate.text = formatter.string(from: item.date ?? Date())
         }
         return cell
     }
@@ -160,6 +160,15 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
         let deleteAction = SwipeAction(style: .destructive, title: "Delete") { swipeAction, indexPath in
             do {
                 try self.realm.write {
+                    let newHistoryItem = HistoryItems()
+                    if let categoryItem = self.selectedCategory {
+                        let itemsData = categoryItem.items[indexPath.row]
+                        newHistoryItem.category = categoryItem.title
+                        newHistoryItem.date = itemsData.date
+                        newHistoryItem.name = itemsData.title
+                        newHistoryItem.amount = itemsData.amount
+                        self.realm.add(newHistoryItem)
+                    }
                     self.realm.delete((self.selectedCategory?.items[indexPath.row])!)
                     tableView.reloadData()
                 }
@@ -171,3 +180,4 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
     }
     
 }
+

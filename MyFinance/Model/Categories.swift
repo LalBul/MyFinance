@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-class Category: Object {
+class Categories: Object {
     @objc dynamic var title: String = ""
     @objc dynamic var color: String = "132743"
     let items = List<Items>()
