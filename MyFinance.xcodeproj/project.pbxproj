@@ -28,6 +28,7 @@
 		4C5D7808268D217900218A7D /* MyFinanceWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 4C5D7803268D217900218A7D /* MyFinanceWidget.intentdefinition */; };
 		4C5D780B268D217900218A7D /* MyFinanceWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 4C5D77FB268D217800218A7D /* MyFinanceWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4C87E4E52702F8BD00674C6A /* AllPurchasesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C87E4E42702F8BD00674C6A /* AllPurchasesController.swift */; };
+		4C8ACFFC27071E6800E69525 /* AllPurchasesItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C8ACFFB27071E6800E69525 /* AllPurchasesItemCell.swift */; };
 		4C8F5C5D2698037A0025016E /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C8F5C5C2698037A0025016E /* CategoryCell.swift */; };
 		4CB3C6892645B8140083531D /* LimitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB3C6882645B8140083531D /* LimitViewController.swift */; };
 		4CB91B14263DB88700806CA8 /* ItemsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB91B13263DB88700806CA8 /* ItemsViewController.swift */; };
@@ -41,7 +42,6 @@
 		4CFC7B7D2651CF7400239D5A /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CFC7B7C2651CF7400239D5A /* ComplicationController.swift */; };
 		4CFC7B7F2651CF7400239D5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CFC7B7E2651CF7400239D5A /* Assets.xcassets */; };
 		4CFC7B832651CF7400239D5A /* AWVersion.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 4CFC7B672651CF7200239D5A /* AWVersion.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		E833223FBCFC8CAF6926050B /* Pods_MyFinance.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C85A102264DB7E4007F402F /* Pods_MyFinance.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -133,6 +133,7 @@
 		4C85A0FF264DB7B9007F402F /* RealmSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = RealmSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C85A102264DB7E4007F402F /* Pods_MyFinance.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_MyFinance.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C87E4E42702F8BD00674C6A /* AllPurchasesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllPurchasesController.swift; sourceTree = "<group>"; };
+		4C8ACFFB27071E6800E69525 /* AllPurchasesItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllPurchasesItemCell.swift; sourceTree = "<group>"; };
 		4C8EEDB82650143B00891103 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS7.4.sdk/System/Library/Frameworks/WatchConnectivity.framework; sourceTree = DEVELOPER_DIR; };
 		4C8F5C5C2698037A0025016E /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		4CB34B6126716250005CCD0F /* MyFinance.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyFinance.entitlements; sourceTree = "<group>"; };
@@ -167,7 +168,6 @@
 			files = (
 				3DB01EDA9F0032CC7589E7F9 /* Pods_MyFinance.framework in Frameworks */,
 				4CEAAE0B264ED7C400177992 /* WatchConnectivity.framework in Frameworks */,
-				E833223FBCFC8CAF6926050B /* Pods_MyFinance.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,6 +247,7 @@
 				4CCC87812644240900069B11 /* BuyCell.swift */,
 				4C306ECE2690FF8D00B22D49 /* HistoryCell.swift */,
 				4C8F5C5C2698037A0025016E /* CategoryCell.swift */,
+				4C8ACFFB27071E6800E69525 /* AllPurchasesItemCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -415,7 +416,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1250;
-				LastUpgradeCheck = 1250;
+				LastUpgradeCheck = 1300;
 				TargetAttributes = {
 					4C0F9944263DA9B000AA8749 = {
 						CreatedOnToolsVersion = 12.5;
@@ -548,6 +549,7 @@
 				4C306ED1269100BE00B22D49 /* HistoryViewController.swift in Sources */,
 				4CB91B14263DB88700806CA8 /* ItemsViewController.swift in Sources */,
 				4C0F9960263DAC0400AA8749 /* Items.swift in Sources */,
+				4C8ACFFC27071E6800E69525 /* AllPurchasesItemCell.swift in Sources */,
 				4C0F9949263DA9B000AA8749 /* AppDelegate.swift in Sources */,
 				4C0F994B263DA9B000AA8749 /* SceneDelegate.swift in Sources */,
 				4C0F995E263DAB5900AA8749 /* Categories.swift in Sources */,

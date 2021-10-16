@@ -18,7 +18,7 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
         super.viewDidLoad()
         loadItems()
         
-        tableView.rowHeight = 80
+        tableView.rowHeight = 90
         navigationItem.backBarButtonItem?.tintColor = UIColor.white
         addItemOutlet.image = UIImage(named: "add")
         defaultValue = defaults.double(forKey: "Limit")

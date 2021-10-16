@@ -355,7 +355,6 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
         } else {
             return 0
         }
-        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
