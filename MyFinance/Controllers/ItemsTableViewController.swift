@@ -10,7 +10,7 @@ import RealmSwift
 import ChameleonFramework
 import SwipeCellKit
 
-class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
+class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegate {
     
     @IBOutlet weak var addItemOutlet: UIBarButtonItem!
     
@@ -18,9 +18,11 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
         super.viewDidLoad()
         loadItems()
         
-        tableView.rowHeight = 90
+        tableView.rowHeight = 100
         navigationItem.backBarButtonItem?.tintColor = UIColor.white
-        addItemOutlet.image = UIImage(named: "add")
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        self.navigationController?.navigationBar.isTranslucent = true
         defaultValue = defaults.double(forKey: "Limit")
     }
     
@@ -30,13 +32,13 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
     }
     
     let realm = try! Realm()
-    var items: Results<Items>?
-    var selectedCategory: Categories?
+    var items: Results<Item>?
+    var selectedCategory: Category?
     let defaults = UserDefaults.standard
     var defaultValue: Double = 0
     
     func loadItems() {
-        items = selectedCategory?.items.sorted(byKeyPath: "date", ascending: false)
+        items = selectedCategory?.items.sorted(byKeyPath: "date")
         tableView.reloadData()
     }
     
@@ -98,7 +100,7 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
                 format = numberFormatter.number(from: amount)
             }
             guard let amountInDouble = format as? Double else {fatalError("Error converting in Double")}
-            let newItem = Items()
+            let newItem = Item()
             newItem.date = Date()
             newItem.title = waste
             newItem.amount = amountInDouble
@@ -139,11 +141,12 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
     //MARK: - Table View
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return items?.count ?? 1
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ItemsCell", for: indexPath) as! BuyCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ItemsCell", for: indexPath) as! ItemCell
         cell.delegate = self
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -151,6 +154,10 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
             cell.buyName.text = item.title
             cell.buyPrice.text = String(item.amount)
             cell.buyDate.text = formatter.string(from: item.date ?? Date())
+            cell.layer.borderWidth = CGFloat(3)
+            cell.layer.borderColor = view.backgroundColor?.cgColor
+            cell.view.layer.cornerRadius = 15
+            cell.view.layer.masksToBounds = true
         }
         return cell
     }
@@ -160,14 +167,15 @@ class ItemsViewController: UITableViewController, SwipeTableViewCellDelegate {
         let deleteAction = SwipeAction(style: .destructive, title: "Delete") { swipeAction, indexPath in
             do {
                 try self.realm.write {
-                    let newHistoryItem = HistoryItems()
+                    let newHistoryItem = HistoryItem()
                     if let categoryItem = self.selectedCategory {
                         let itemsData = categoryItem.items[indexPath.row]
                         newHistoryItem.category = categoryItem.title
                         newHistoryItem.date = itemsData.date
-                        newHistoryItem.name = itemsData.title
+                        newHistoryItem.title = itemsData.title
                         newHistoryItem.amount = itemsData.amount
                         self.realm.add(newHistoryItem)
+                        
                     }
                     self.realm.delete((self.selectedCategory?.items[indexPath.row])!)
                     tableView.reloadData()

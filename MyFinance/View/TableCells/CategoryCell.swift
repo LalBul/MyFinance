@@ -11,4 +11,6 @@ import SwipeCellKit
 class CategoryCell: SwipeTableViewCell {
     @IBOutlet weak var categoryName: UILabel!
     @IBOutlet weak var view: UIView!
+    @IBOutlet weak var amount: UILabel!
+    
 }

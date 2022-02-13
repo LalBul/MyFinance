@@ -50,12 +50,6 @@ class LimitViewController: UIViewController {
         }
     }
     
-    @IBAction func clearButton(_ sender: UIBarButtonItem) {
-        numberLabel.text = "0"
-        pointBool = true
-    }
-    
-    
     @IBAction func swipeRightDeleteAmount(_ sender: UISwipeGestureRecognizer) {
         deleteLastSymbolLabel()
     }

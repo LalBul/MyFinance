@@ -14,7 +14,15 @@ import ColorSlider
 import ChameleonFramework
 import WatchConnectivity
 
-class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
+protocol MoneyBoxDelegate {
+    func getMainMoneyBox(moneyBox: MoneyBox)
+}
+
+class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, MoneyBoxDelegate {
+    
+    func getMainMoneyBox(moneyBox: MoneyBox) {
+        selectedMoneyBox = moneyBox
+    }
     
     @IBOutlet weak var mainTableView: UITableView!
     @IBOutlet weak var preparedTableView: UITableView!
@@ -22,9 +30,15 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var addLimitButton: UIBarButtonItem!
     
     var realm = try! Realm()
-    var categoryArray: Results<Categories>?
+    var categoryArray: Results<Category>?
     let defaults = UserDefaults.standard
     var session: WCSession?
+    
+    var selectedMoneyBox = MoneyBox() {
+        didSet {
+            
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,6 +73,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         checkLimit()
         updateChartData()
     }
+    
     
     private var blurEffectView = UIVisualEffectView()
     private var tap = UITapGestureRecognizer()
@@ -105,9 +120,9 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
             formatter.dateStyle = .medium
             if formatter.string(from: Date()) != formatter.string(from: limitDate) {
                 if limitValue > 0 {
-                    limitLabel.text = "You saved \(limitValue)"
+                    limitLabel.text = "Вы сохранили \(limitValue)"
                 } else if limitValue < 0 {
-                    limitLabel.text = "You are in the red by \(limitValue)"
+                    limitLabel.text = "Вы в минусе на: \(limitValue)"
                 } else {return}
                 
                 defaults.setValue(nil, forKey: "Limit")
@@ -132,7 +147,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         
         var downloadDataEnty: [PieChartDataEntry] = []
         var colors: [UIColor] = []
-        categoryArray = realm.objects(Categories.self)
+        categoryArray = realm.objects(Category.self)
         
         if let array = categoryArray {
             for i in array {
@@ -147,7 +162,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         }
         
-        let allAmount: Double = realm.objects(Items.self).sum(ofProperty: "amount")  // Сумма покупок за всё время
+        let allAmount: Double = realm.objects(Item.self).sum(ofProperty: "amount")  // Сумма покупок за всё время
         chartView.centerAttributedText = NSAttributedString(string: String(allAmount), attributes: [NSAttributedString.Key.foregroundColor : UIColor.black])
         
         let dataSet = PieChartDataSet(entries: downloadDataEnty, label: nil)
@@ -165,12 +180,11 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func setGradientBackground() {
         let colorTop = UIColor(hexString: "213C66")!.darken(byPercentage: 0.15)!.cgColor
-        let colorBottom = UIColor(.black).cgColor
+        let colorBottom = UIColor.black.cgColor
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = [colorTop, colorBottom]
         gradientLayer.locations = [0.0, 1.0]
         gradientLayer.frame = self.view.bounds
-        
         view.layer.insertSublayer(gradientLayer, at:0)
     }
     
@@ -224,9 +238,15 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
             if let color = colorView.backgroundColor {
                 colorHex = color.hexValue()
             }
-            let newCategory = Categories()
-            newCategory.title = category
+            //Create Category
+            let newCategory = Category()
+            if category == "" {
+                newCategory.title = "New Category"
+            } else {
+                newCategory.title = category
+            }
             newCategory.color = colorHex
+            //
             do {
                 try realm.write {
                     realm.add(newCategory)
@@ -343,7 +363,7 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == mainTableView {
-            if categoryArray!.count <= 3 {
+            if categoryArray!.count <= 2 {
                 mainTableView.isScrollEnabled = false
             } else {
                 mainTableView.isScrollEnabled = true
@@ -362,10 +382,13 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
             let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! CategoryCell
             cell.delegate = self
             if let category = categoryArray?[indexPath.row] {
+                let categorySum: Double = category.items.sum(ofProperty: "amount")
                 cell.layer.borderColor = UIColor.black.cgColor
                 cell.layer.borderWidth = 0.25
-                cell.contentView.backgroundColor = HexColor(category.color)
+                cell.view.backgroundColor = HexColor(category.color)
+                cell.view.layer.cornerRadius = cell.view.frame.size.width/2
                 cell.categoryName.text = category.title
+                cell.amount.text = String(categorySum)
             }
             return cell
         } else if tableView == preparedTableView {
@@ -409,7 +432,7 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToItems" {
-            let destinationVC = segue.destination as! ItemsViewController
+            let destinationVC = segue.destination as! ItemsTableViewController
             if let indexPath = mainTableView.indexPathForSelectedRow {
                 if let category = categoryArray?[indexPath.row] {
                     destinationVC.selectedCategory = category
@@ -417,6 +440,8 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
                 }
             }
         }
+        guard let destination = segue.destination as? MoneyBoxViewController else { return }
+        destination.delegate = self
     }
     
 }

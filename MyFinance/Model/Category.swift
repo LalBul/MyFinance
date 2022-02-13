@@ -8,8 +8,8 @@
 import Foundation
 import RealmSwift
 
-class Categories: Object {
+class Category: Object {
     @objc dynamic var title: String = ""
     @objc dynamic var color: String = "132743"
-    let items = List<Items>()
+    let items = List<Item>()
 }

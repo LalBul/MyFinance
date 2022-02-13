@@ -9,23 +9,22 @@ import UIKit
 import RealmSwift
 import SwipeCellKit
 
-class HistoryViewController: UITableViewController, SwipeTableViewCellDelegate {
+class HistoryTableViewController: UITableViewController, SwipeTableViewCellDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
         loadItems()
         
-        tableView.rowHeight = 94
+        tableView.rowHeight = 100
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadItems()
-        
     }
     
     var realm = try! Realm()
-    var historyItemsArray: Results<HistoryItems>?
+    var historyItemsArray: Results<HistoryItem>?
     
     @IBAction func deleteAllHistory(_ sender: UIBarButtonItem) {
         do {
@@ -39,8 +38,7 @@ class HistoryViewController: UITableViewController, SwipeTableViewCellDelegate {
     }
     
     func loadItems() {
-        historyItemsArray = realm.objects(HistoryItems.self)
-        historyItemsArray = historyItemsArray?.sorted(byKeyPath: "date")
+        historyItemsArray = realm.objects(HistoryItem.self)
         tableView.reloadData()
     }
     
@@ -51,15 +49,19 @@ class HistoryViewController: UITableViewController, SwipeTableViewCellDelegate {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "HistoryCell", for: indexPath) as! HistoryCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! HistoryCell
         cell.delegate = self
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
+        formatter.dateStyle = .short
         if let historyArray = historyItemsArray?[indexPath.row] {
             cell.category.text = historyArray.category
             cell.date.text = formatter.string(from: historyArray.date!)
-            cell.name.text = historyArray.name
+            cell.name.text = historyArray.title
             cell.amount.text = String(historyArray.amount)
+            cell.layer.borderWidth = CGFloat(3)
+            cell.layer.borderColor = view.backgroundColor?.cgColor
+            cell.view.layer.cornerRadius = 15
+            cell.view.layer.masksToBounds = true;
         }
         return cell
     }
@@ -78,7 +80,5 @@ class HistoryViewController: UITableViewController, SwipeTableViewCellDelegate {
         }
         return [deleteAction]
     }
-    
-    
     
 }
