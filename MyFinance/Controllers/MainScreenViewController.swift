@@ -121,6 +121,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
             if formatter.string(from: Date()) != formatter.string(from: limitDate) {
                 if limitValue > 0 {
                     limitLabel.text = "Вы сохранили \(limitValue)"
+                    selectedMoneyBox.collected += limitValue
                 } else if limitValue < 0 {
                     limitLabel.text = "Вы в минусе на: \(limitValue)"
                 } else {return}
@@ -424,6 +425,9 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == mainTableView {
+            let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
+            impactFeedbackgenerator.prepare()
+            impactFeedbackgenerator.impactOccurred()
             performSegue(withIdentifier: "goToItems", sender: self)
         } else if tableView == preparedTableView {
             performSegue(withIdentifier: "goToAllPurchases", sender: self)

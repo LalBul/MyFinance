@@ -30,7 +30,7 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         super.viewWillAppear(animated)
         loadItems()
     }
-    
+                            
     let realm = try! Realm()
     var items: Results<Item>?
     var selectedCategory: Category?
@@ -59,9 +59,9 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         addItemView.center = view.center
         addItemView.center.y -= 500
         addItemView.center.x += 150
-        addItemView.transform = CGAffineTransform(scaleX: 0.05, y: 0.05)
+        addItemView.transform = CGAffineTransform(scaleX: 0.25, y: 0.25)
         
-        wasteTextField.attributedPlaceholder = NSAttributedString(string: "What did you spend it on?", attributes: [NSAttributedString.Key.foregroundColor : UIColor.darkGray, NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 15)])
+        wasteTextField.attributedPlaceholder = NSAttributedString(string: "Waste", attributes: [NSAttributedString.Key.foregroundColor : UIColor.darkGray, NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 30)])
         wasteTextField.layer.cornerRadius = 15
         
         amountTextField.attributedPlaceholder = NSAttributedString(string: "Amount", attributes: [NSAttributedString.Key.foregroundColor : UIColor.darkGray])
@@ -141,7 +141,6 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
     //MARK: - Table View
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         return items?.count ?? 1
     }
     

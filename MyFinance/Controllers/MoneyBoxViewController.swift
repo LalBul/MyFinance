@@ -22,7 +22,6 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
         moneyBoxCollectionView.delegate = self
         
         loadItems()
-        
     }
     
     func loadItems() {
@@ -33,7 +32,6 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadItems()
-        
     }
 
     var moneyBoxes: Results<MoneyBox>?
@@ -59,6 +57,8 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
         addMoneyBoxView.center.y -= 500
         addMoneyBoxView.center.x += 150
         addMoneyBoxView.transform = CGAffineTransform(scaleX: 0.05, y: 0.05)
+        
+        nameMoneyBox.layer.cornerRadius = 15
         
         purpose.keyboardType = .decimalPad
         purpose.layer.cornerRadius = 20
@@ -139,6 +139,9 @@ extension MoneyBoxViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
+        impactFeedbackgenerator.prepare()
+        impactFeedbackgenerator.impactOccurred()
         delegate?.getMainMoneyBox(moneyBox: (moneyBoxes?[indexPath.row])!)
         navigationController?.popToRootViewController(animated: true)
         

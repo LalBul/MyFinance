@@ -21,24 +21,26 @@ class LimitViewController: UIViewController {
         }
     }
     
+    //Логика ввода точки, позволяет поставить её только один раз
     @IBAction func buttons(_ sender: UIButton) {
-        if let title = sender.currentTitle {
+        if let senderButton = sender.currentTitle {
             if numberLabel.text == "0" {
-                if title == "." {
-                    numberLabel.text?.append(title)
+                if senderButton == "." {
+                    numberLabel.text?.append(senderButton)
                     pointBool = false
                 } else {
-                    numberLabel.text = title
+                    numberLabel.text = senderButton
                 }
             } else if sender.currentTitle == "." {
                 if pointBool == true {
-                    numberLabel.text?.append(title)
+                    numberLabel.text?.append(senderButton)
                     pointBool = false
                 } else {return}
             } else {
-                numberLabel.text?.append(title)
+                numberLabel.text?.append(senderButton)
             }
         }
+        print(pointBool)
     }
     
     @IBAction func addLimit(_ sender: UIButton) {
@@ -58,10 +60,18 @@ class LimitViewController: UIViewController {
         deleteLastSymbolLabel()
     }
     
+    // Проверяет последний символ ли точка, если да, то точка удаляется и появляется возможность поставить её еще раз.
     func deleteLastSymbolLabel() {
         if numberLabel.text != "" {
+            if let lastSymbol = numberLabel.text?.last {
+                if lastSymbol == "." {
+                    pointBool = true
+                }
+            }
             numberLabel.text?.removeLast()
-        } 
+        }
+        
+        
     }
     
 }

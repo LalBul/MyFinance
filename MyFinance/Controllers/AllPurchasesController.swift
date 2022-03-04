@@ -33,6 +33,7 @@ class AllPurchasesController: UIViewController {
         itemsArray = realm.objects(Item.self)
         mainTableView.reloadData()
     }
+    
 }
 
 extension AllPurchasesController: UITableViewDelegate, UITableViewDataSource, SwipeTableViewCellDelegate {
@@ -42,13 +43,11 @@ extension AllPurchasesController: UITableViewDelegate, UITableViewDataSource, Sw
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "PurchasesCell", for: indexPath) as! AllPurchasesItemCell
         cell.delegate = self
         
         cell.selectionStyle = .none
         cell.backgroundColor = UIColor.white
-        
         cell.layer.borderWidth = CGFloat(3)
         cell.layer.borderColor = view.backgroundColor?.cgColor
         
