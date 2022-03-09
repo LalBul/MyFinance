@@ -35,6 +35,7 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     var moneyBoxes: Results<MoneyBox>?
+    let defaults = UserDefaults.standard
     
     var realm = try! Realm()
     
@@ -78,6 +79,8 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
             self.addMoneyBoxView.transform = CGAffineTransform.identity
         }
         
+        self.nameMoneyBox.becomeFirstResponder()
+        
     }
     
     @objc func tapBack(recognizer: UITapGestureRecognizer){
@@ -96,18 +99,29 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @IBAction func addMoneyBoxButton(_ sender: UIButton) {
-        let moneyBox = MoneyBox()
-        moneyBox.title = nameMoneyBox.text ?? ""
-        moneyBox.purpose = Double(purpose.text!)!
-        moneyBox.collected = 0
-        do {
-            try realm.write {
-                realm.add(moneyBox)
-                back()
-                moneyBoxCollectionView.reloadData()
+        let numberFormatter = NumberFormatter()
+        numberFormatter.decimalSeparator = ","
+        if let amount = purpose.text {
+            var format = numberFormatter.number(from: amount)
+            if format == nil {
+                numberFormatter.decimalSeparator = "."
+                format = numberFormatter.number(from: amount)
+                format = 0
             }
-        } catch {
-            print("Error added new MoneyBox")
+            guard let amountInDouble = format as? Double else {fatalError("Error converting in Double")}
+            let moneyBox = MoneyBox()
+            moneyBox.title = nameMoneyBox.text ?? ""
+            moneyBox.purpose = amountInDouble
+            moneyBox.collected = 0
+            do {
+                try realm.write {
+                    realm.add(moneyBox)
+                    back()
+                    moneyBoxCollectionView.reloadData()
+                }
+            } catch {
+                print("Error added new MoneyBox")
+            }
         }
     }
     
@@ -139,9 +153,22 @@ extension MoneyBoxViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
-        impactFeedbackgenerator.prepare()
-        impactFeedbackgenerator.impactOccurred()
+        // ------- Haptic вибрация
+        let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
+        selectionFeedbackGenerator.selectionChanged()
+        // -------
+        if moneyBoxes?[indexPath.row] != nil {
+            do {
+                try realm.write({
+                    for i in 0..<moneyBoxes!.count {
+                        moneyBoxes![i].selected = false
+                    }
+                    moneyBoxes![indexPath.row].selected = true
+                })
+            } catch {
+                print("error")
+            }
+        }
         delegate?.getMainMoneyBox(moneyBox: (moneyBoxes?[indexPath.row])!)
         navigationController?.popToRootViewController(animated: true)
         

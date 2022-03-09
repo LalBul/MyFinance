@@ -21,7 +21,24 @@ protocol MoneyBoxDelegate {
 class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, MoneyBoxDelegate {
     
     func getMainMoneyBox(moneyBox: MoneyBox) {
-        selectedMoneyBox = moneyBox
+        
+    }
+    
+    func addCollectedToMoneyBox(sum: Double) {
+        moneyBoxes = realm.objects(MoneyBox.self)
+        if moneyBoxes!.count > 0 {
+            for i in 0..<moneyBoxes!.count {
+                do {
+                    try realm.write({
+                        if moneyBoxes![i].selected == true {
+                            moneyBoxes![i].collected += sum
+                        }
+                    })
+                } catch {
+                    print("error")
+                }
+            }
+        }
     }
     
     @IBOutlet weak var mainTableView: UITableView!
@@ -31,14 +48,9 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
     
     var realm = try! Realm()
     var categoryArray: Results<Category>?
+    var moneyBoxes: Results<MoneyBox>?
     let defaults = UserDefaults.standard
     var session: WCSession?
-    
-    var selectedMoneyBox = MoneyBox() {
-        didSet {
-            
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,7 +58,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
         limitViewPresent()
         configureWatchKitSesstion()
         sendAWData()
-        
+
         preparedTableView.delegate = self
         preparedTableView.dataSource = self
         preparedTableView.backgroundColor = UIColor.clear
@@ -73,7 +85,6 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
         checkLimit()
         updateChartData()
     }
-    
     
     private var blurEffectView = UIVisualEffectView()
     private var tap = UITapGestureRecognizer()
@@ -121,7 +132,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
             if formatter.string(from: Date()) != formatter.string(from: limitDate) {
                 if limitValue > 0 {
                     limitLabel.text = "Вы сохранили \(limitValue)"
-                    selectedMoneyBox.collected += limitValue
+                    addCollectedToMoneyBox(sum: limitValue)
                 } else if limitValue < 0 {
                     limitLabel.text = "Вы в минусе на: \(limitValue)"
                 } else {return}
@@ -200,6 +211,11 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
     
     @IBOutlet weak var addCategoryOutlet: UIBarButtonItem!
     @IBAction func addCategory(_ sender: UIBarButtonItem) {
+        // ------- Haptic вибрация
+        let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
+        impactFeedbackgenerator.prepare()
+        impactFeedbackgenerator.impactOccurred()
+        // -------
         addCategoryViewSettings()
     }
     
@@ -425,11 +441,18 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == mainTableView {
+            // ------- Haptic вибрация
             let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
             impactFeedbackgenerator.prepare()
             impactFeedbackgenerator.impactOccurred()
+            // -------
             performSegue(withIdentifier: "goToItems", sender: self)
         } else if tableView == preparedTableView {
+            // ------- Haptic вибрация
+            let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
+            impactFeedbackgenerator.prepare()
+            impactFeedbackgenerator.impactOccurred()
+            // -------
             performSegue(withIdentifier: "goToAllPurchases", sender: self)
         }
     }

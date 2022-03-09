@@ -10,7 +10,7 @@ import RealmSwift
 import ChameleonFramework
 import SwipeCellKit
 
-class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegate {
+class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegate, UITextFieldDelegate, UITextViewDelegate {
     
     @IBOutlet weak var addItemOutlet: UIBarButtonItem!
     
@@ -24,11 +24,16 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationController?.navigationBar.isTranslucent = true
         defaultValue = defaults.double(forKey: "Limit")
+        
+        amountTextField.delegate = self
+  
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadItems()
+        
+        
     }
                             
     let realm = try! Realm()
@@ -52,9 +57,10 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
     
     private var blurEffectView = UIVisualEffectView()
     
+
     fileprivate func addItemViewSettings(_ sender: UIBarButtonItem) {
         tableView.isScrollEnabled = false
-        
+   
         addItemView.layer.cornerRadius = 15
         addItemView.center = view.center
         addItemView.center.y -= 500
@@ -79,17 +85,25 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         view.addSubview(addItemView)
         
         UIView.animate(withDuration: 0.25) {
-            self.addItemView.center.y = 250
+            self.addItemView.center.y = self.view.center.x
             self.addItemView.center.x = self.view.center.x
             self.addItemView.transform = CGAffineTransform.identity
             sender.isEnabled = false
         }
+        self.wasteTextField.becomeFirstResponder()
     }
     
     @IBAction func addItemButton(_ sender: UIBarButtonItem) {
+        // ------- Haptic вибрация
+        let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
+        impactFeedbackgenerator.prepare()
+        impactFeedbackgenerator.impactOccurred()
+        // -------
         addItemViewSettings(sender)
     }
     
+    
+   
     @IBAction func addItem(_ sender: UIButton) {
         let numberFormatter = NumberFormatter()
         numberFormatter.decimalSeparator = ","
@@ -98,12 +112,21 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
             if format == nil {
                 numberFormatter.decimalSeparator = "."
                 format = numberFormatter.number(from: amount)
+                format = 0
             }
             guard let amountInDouble = format as? Double else {fatalError("Error converting in Double")}
             let newItem = Item()
             newItem.date = Date()
-            newItem.title = waste
-            newItem.amount = amountInDouble
+            if waste != "" {
+                newItem.title = waste
+            } else {
+                newItem.title = "New Purchase"
+            }
+            if amountInDouble > 0 {
+                newItem.amount = amountInDouble
+            } else {
+                newItem.amount = 0
+            }
             do {
                 try realm.write {
                     selectedCategory?.items.append(newItem)
@@ -118,6 +141,12 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
             }
         }
     }
+    
+    var pointBool = true
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+                
+    }
+    
     
     @IBAction func cancelAddItem(_ sender: UIButton) {
         backAnimate()
@@ -186,5 +215,8 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         return [deleteAction]
     }
     
+    
+    
 }
+
 

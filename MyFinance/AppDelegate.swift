@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         watchConnect()
         print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true))
         IQKeyboardManager.shared().isEnabled = true
+        IQKeyboardManager.shared().keyboardDistanceFromTextField = 80
         return true
     }
     

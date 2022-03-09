@@ -25,6 +25,13 @@ class AllPurchasesController: UIViewController {
         mainTableView.backgroundColor = .clear
         mainTableView.layer.cornerRadius = 20
         mainTableView.rowHeight = 130
+        mainTableView.showsHorizontalScrollIndicator = false
+        mainTableView.showsVerticalScrollIndicator = false
+        
+        navigationItem.backBarButtonItem?.tintColor = UIColor.white
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        self.navigationController?.navigationBar.isTranslucent = true
         
         loadItems()
     }

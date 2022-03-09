@@ -12,4 +12,6 @@ class MoneyBox: Object {
     @objc dynamic var title: String = ""
     @objc dynamic var purpose: Double = 0
     @objc dynamic var collected: Double = 0
+    @objc dynamic var selected: Bool = false
 }
+

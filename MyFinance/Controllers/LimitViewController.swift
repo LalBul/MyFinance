@@ -40,7 +40,6 @@ class LimitViewController: UIViewController {
                 numberLabel.text?.append(senderButton)
             }
         }
-        print(pointBool)
     }
     
     @IBAction func addLimit(_ sender: UIButton) {
