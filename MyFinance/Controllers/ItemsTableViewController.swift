@@ -9,10 +9,9 @@ import UIKit
 import RealmSwift
 import ChameleonFramework
 import SwipeCellKit
+import SwiftUI
 
 class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegate, UITextFieldDelegate, UITextViewDelegate {
-    
-    @IBOutlet weak var addItemOutlet: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,14 +24,27 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         self.navigationController?.navigationBar.isTranslucent = true
         defaultValue = defaults.double(forKey: "Limit")
         
+        let imageView = UIImageView()
+            NSLayoutConstraint.activate([
+                imageView.heightAnchor.constraint(equalToConstant: 10),
+                imageView.widthAnchor.constraint(equalToConstant: 80)
+            ])
+        imageView.layer.cornerRadius = 5
+        imageView.backgroundColor = HexColor(selectedCategory!.color)
+            
+        let hStack = UIStackView(arrangedSubviews: [imageView])
+        hStack.spacing = 5
+        hStack.alignment = .center
+        
+        navigationItem.titleView = hStack
+        
         amountTextField.delegate = self
   
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadItems()
-        
         
     }
                             
@@ -46,7 +58,7 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         items = selectedCategory?.items.sorted(byKeyPath: "date")
         tableView.reloadData()
     }
-    
+
     //MARK: - Add Item
     
     @IBOutlet var addItemView: UIView!
@@ -57,7 +69,6 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
     
     private var blurEffectView = UIVisualEffectView()
     
-
     fileprivate func addItemViewSettings(_ sender: UIBarButtonItem) {
         tableView.isScrollEnabled = false
    
@@ -93,6 +104,7 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         self.wasteTextField.becomeFirstResponder()
     }
     
+    @IBOutlet weak var addItemOutlet: UIBarButtonItem!
     @IBAction func addItemButton(_ sender: UIBarButtonItem) {
         // ------- Haptic вибрация
         let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
@@ -102,8 +114,6 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         addItemViewSettings(sender)
     }
     
-    
-   
     @IBAction func addItem(_ sender: UIButton) {
         let numberFormatter = NumberFormatter()
         numberFormatter.decimalSeparator = ","
@@ -147,7 +157,6 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
                 
     }
     
-    
     @IBAction func cancelAddItem(_ sender: UIButton) {
         backAnimate()
     }
@@ -161,10 +170,11 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         UIView.animate(withDuration: 0.25) {
             self.addItemView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             self.addItemView.center.y += 500
+            self.addItemOutlet.isEnabled = true
         } completion: { _ in
             self.addItemView.removeFromSuperview()
         }
-        addItemOutlet.isEnabled = true
+        
     }
     
     //MARK: - Table View

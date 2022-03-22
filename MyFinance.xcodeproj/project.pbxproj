@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3DB01EDA9F0032CC7589E7F9 /* Pods_MyFinance.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D3CAADE9D99C4CD9F725A5D /* Pods_MyFinance.framework */; };
+		257C96D80C29CC4D05BA6149 /* Pods_MyFinance.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DC7C17A7201394AC6AC773A /* Pods_MyFinance.framework */; };
 		4C0F9949263DA9B000AA8749 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0F9948263DA9B000AA8749 /* AppDelegate.swift */; };
 		4C0F994B263DA9B000AA8749 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0F994A263DA9B000AA8749 /* SceneDelegate.swift */; };
 		4C0F994D263DA9B000AA8749 /* MainScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0F994C263DA9B000AA8749 /* MainScreenViewController.swift */; };
@@ -108,7 +108,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		391F52B99AEBB00BA07CD894 /* Pods-MyFinance.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyFinance.release.xcconfig"; path = "Target Support Files/Pods-MyFinance/Pods-MyFinance.release.xcconfig"; sourceTree = "<group>"; };
+		2DC7C17A7201394AC6AC773A /* Pods_MyFinance.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyFinance.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C0F9945263DA9B000AA8749 /* MyFinance.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyFinance.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C0F9948263DA9B000AA8749 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4C0F994A263DA9B000AA8749 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -137,7 +137,6 @@
 		4C85A07F264D7993007F402F /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 		4C85A0FB264DB7B4007F402F /* Realm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Realm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C85A0FF264DB7B9007F402F /* RealmSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = RealmSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		4C85A102264DB7E4007F402F /* Pods_MyFinance.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_MyFinance.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C87E4E42702F8BD00674C6A /* AllPurchasesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllPurchasesController.swift; sourceTree = "<group>"; };
 		4C8ACFFB27071E6800E69525 /* AllPurchasesItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllPurchasesItemCell.swift; sourceTree = "<group>"; };
 		4C8EEDB82650143B00891103 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS7.4.sdk/System/Library/Frameworks/WatchConnectivity.framework; sourceTree = DEVELOPER_DIR; };
@@ -156,8 +155,8 @@
 		4CFC7B7C2651CF7400239D5A /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		4CFC7B7E2651CF7400239D5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4CFC7B802651CF7400239D5A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6D3CAADE9D99C4CD9F725A5D /* Pods_MyFinance.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyFinance.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		98B977476FBF1E058264D05C /* Pods-MyFinance.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyFinance.debug.xcconfig"; path = "Target Support Files/Pods-MyFinance/Pods-MyFinance.debug.xcconfig"; sourceTree = "<group>"; };
+		B26587C79F9F655C1B106905 /* Pods-MyFinance.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyFinance.release.xcconfig"; path = "Target Support Files/Pods-MyFinance/Pods-MyFinance.release.xcconfig"; sourceTree = "<group>"; };
+		E303D1C64FF475F166A65276 /* Pods-MyFinance.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyFinance.debug.xcconfig"; path = "Target Support Files/Pods-MyFinance/Pods-MyFinance.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,8 +171,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3DB01EDA9F0032CC7589E7F9 /* Pods_MyFinance.framework in Frameworks */,
 				4CEAAE0B264ED7C400177992 /* WatchConnectivity.framework in Frameworks */,
+				257C96D80C29CC4D05BA6149 /* Pods_MyFinance.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,8 +326,8 @@
 		7A1D7FB75F58D4D35199DA5F /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				98B977476FBF1E058264D05C /* Pods-MyFinance.debug.xcconfig */,
-				391F52B99AEBB00BA07CD894 /* Pods-MyFinance.release.xcconfig */,
+				E303D1C64FF475F166A65276 /* Pods-MyFinance.debug.xcconfig */,
+				B26587C79F9F655C1B106905 /* Pods-MyFinance.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -337,13 +336,12 @@
 			isa = PBXGroup;
 			children = (
 				4C8EEDB82650143B00891103 /* WatchConnectivity.framework */,
-				4C85A102264DB7E4007F402F /* Pods_MyFinance.framework */,
 				4C85A0FF264DB7B9007F402F /* RealmSwift.framework */,
 				4C85A0FB264DB7B4007F402F /* Realm.framework */,
 				4C85A07F264D7993007F402F /* WatchConnectivity.framework */,
-				6D3CAADE9D99C4CD9F725A5D /* Pods_MyFinance.framework */,
 				4C5D77FC268D217800218A7D /* WidgetKit.framework */,
 				4C5D77FE268D217800218A7D /* SwiftUI.framework */,
+				2DC7C17A7201394AC6AC773A /* Pods_MyFinance.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -355,13 +353,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4C0F9959263DA9B100AA8749 /* Build configuration list for PBXNativeTarget "MyFinance" */;
 			buildPhases = (
-				B071B59E73D85FFEC0B1E498 /* [CP] Check Pods Manifest.lock */,
+				E724C9029507F6D6D6D630E1 /* [CP] Check Pods Manifest.lock */,
 				4C0F9941263DA9B000AA8749 /* Sources */,
 				4C0F9942263DA9B000AA8749 /* Frameworks */,
 				4C0F9943263DA9B000AA8749 /* Resources */,
-				B96585177DAB630BE3517183 /* [CP] Embed Pods Frameworks */,
 				4C85A0F1264DA1F0007F402F /* Embed Watch Content */,
 				4C5D780D268D217A00218A7D /* Embed App Extensions */,
+				5691C95BF8835E153169DD4C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -509,7 +507,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		B071B59E73D85FFEC0B1E498 /* [CP] Check Pods Manifest.lock */ = {
+		5691C95BF8835E153169DD4C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyFinance/Pods-MyFinance-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyFinance/Pods-MyFinance-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MyFinance/Pods-MyFinance-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E724C9029507F6D6D6D630E1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -529,23 +544,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B96585177DAB630BE3517183 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MyFinance/Pods-MyFinance-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MyFinance/Pods-MyFinance-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MyFinance/Pods-MyFinance-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -763,7 +761,7 @@
 		};
 		4C0F995A263DA9B100AA8749 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 98B977476FBF1E058264D05C /* Pods-MyFinance.debug.xcconfig */;
+			baseConfigurationReference = E303D1C64FF475F166A65276 /* Pods-MyFinance.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -790,7 +788,7 @@
 		};
 		4C0F995B263DA9B100AA8749 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 391F52B99AEBB00BA07CD894 /* Pods-MyFinance.release.xcconfig */;
+			baseConfigurationReference = B26587C79F9F655C1B106905 /* Pods-MyFinance.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;

@@ -11,6 +11,8 @@ import SwipeCellKit
 class AllPurchasesItemCell: SwipeTableViewCell {
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var category: UILabel!
+    @IBOutlet weak var colorCategory: UIView!
     @IBOutlet weak var amount: UILabel!
     @IBOutlet weak var date: UILabel!
+    
 }

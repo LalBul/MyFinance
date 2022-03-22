@@ -9,7 +9,6 @@ import UIKit
 import RealmSwift
 import SwiftUI
 
-
 class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var moneyBoxCollectionView: UICollectionView!
@@ -20,6 +19,11 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
         moneyBoxCollectionView.layer.cornerRadius = 15
         moneyBoxCollectionView.dataSource = self
         moneyBoxCollectionView.delegate = self
+        
+        navigationItem.backBarButtonItem?.tintColor = UIColor.white
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        self.navigationController?.navigationBar.isTranslucent = true
         
         loadItems()
     }
@@ -39,14 +43,13 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var realm = try! Realm()
     
-    var delegate: MoneyBoxDelegate?
-    
     private var tap = UITapGestureRecognizer()
     private var blurEffectView = UIVisualEffectView()
     
     @IBOutlet var addMoneyBoxView: UIView!
     @IBOutlet weak var nameMoneyBox: UITextField!
     @IBOutlet weak var purpose: UITextField!
+    @IBOutlet weak var addMoneyBoxButton: UIBarButtonItem!
     @IBAction func addMoneyBox(_ sender: UIBarButtonItem) {
         
         tap = UITapGestureRecognizer(target: self, action: #selector(tapBack))
@@ -77,6 +80,7 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
             self.addMoneyBoxView.center.y += 500
             self.addMoneyBoxView.center.x = self.view.center.x
             self.addMoneyBoxView.transform = CGAffineTransform.identity
+            self.addMoneyBoxButton.isEnabled = false
         }
         
         self.nameMoneyBox.becomeFirstResponder()
@@ -93,6 +97,7 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
         UIView.animate(withDuration: 0.2) {
             self.addMoneyBoxView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             self.addMoneyBoxView.center.y += 500
+            self.addMoneyBoxButton.isEnabled = true
         } completion: { _ in
             self.addMoneyBoxView.removeFromSuperview()
         }
@@ -110,7 +115,11 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
             }
             guard let amountInDouble = format as? Double else {fatalError("Error converting in Double")}
             let moneyBox = MoneyBox()
-            moneyBox.title = nameMoneyBox.text ?? ""
+            if nameMoneyBox.text == "" {
+                moneyBox.title = "New Money Box"
+            } else {
+                moneyBox.title = nameMoneyBox.text ?? "New Money Box"
+            }
             moneyBox.purpose = amountInDouble
             moneyBox.collected = 0
             do {
@@ -125,6 +134,7 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+
 }
 
 extension MoneyBoxViewController: UICollectionViewDelegate, UICollectionViewDataSource  {
@@ -135,8 +145,13 @@ extension MoneyBoxViewController: UICollectionViewDelegate, UICollectionViewData
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         var cell = UICollectionViewCell()
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressed))
+    
         if let configureCell = moneyBoxCollectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as? MoneyBoxCell {
             if let moneyBox = moneyBoxes?[indexPath.row] {
+                
+                configureCell.index = indexPath // Функционал удаления Копилки
+                configureCell.delegate = self //
                 
                 configureCell.purpose.text = String(moneyBox.purpose)
                 configureCell.name.text = moneyBox.title
@@ -146,10 +161,18 @@ extension MoneyBoxViewController: UICollectionViewDelegate, UICollectionViewData
                 configureCell.layer.borderColor = view.backgroundColor?.cgColor
                 configureCell.view.layer.cornerRadius = 15
                 configureCell.view.layer.masksToBounds = true
+              
+                configureCell.view.addGestureRecognizer(longPressRecognizer)
+                
             }
             cell = configureCell
         }
         return cell
+    }
+
+    
+    @objc func longPressed(sender: UILongPressGestureRecognizer) {
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -169,9 +192,26 @@ extension MoneyBoxViewController: UICollectionViewDelegate, UICollectionViewData
                 print("error")
             }
         }
-        delegate?.getMainMoneyBox(moneyBox: (moneyBoxes?[indexPath.row])!)
+        
         navigationController?.popToRootViewController(animated: true)
         
     }
+    
+}
+
+extension MoneyBoxViewController: DataCollectionProtocol {
+    //Функционал удаления Копилки
+    func deleteData(index: Int) {
+        do {
+            try realm.write {
+                realm.delete((moneyBoxes?[index])!)
+                moneyBoxCollectionView.reloadData()
+            }
+        } catch {
+            print("Error delete money box")
+        }
+       
+    }
+    
     
 }

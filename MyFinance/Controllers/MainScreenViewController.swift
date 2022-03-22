@@ -14,16 +14,9 @@ import ColorSlider
 import ChameleonFramework
 import WatchConnectivity
 
-protocol MoneyBoxDelegate {
-    func getMainMoneyBox(moneyBox: MoneyBox)
-}
 
-class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, MoneyBoxDelegate {
-    
-    func getMainMoneyBox(moneyBox: MoneyBox) {
-        
-    }
-    
+class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
+  
     func addCollectedToMoneyBox(sum: Double) {
         moneyBoxes = realm.objects(MoneyBox.self)
         if moneyBoxes!.count > 0 {
@@ -71,6 +64,8 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
         mainTableView.layer.cornerRadius = 10
         mainTableView.rowHeight = 60
         
+        chartView.animate(xAxisDuration: 1, yAxisDuration: 1)
+        
         navigationController?.navigationBar.barTintColor = view.backgroundColor
     }
     
@@ -81,7 +76,6 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
     override func viewWillAppear (_ animated: Bool) {
         super.viewWillAppear(animated)
         sendAWData()
-        setGradientBackground()
         checkLimit()
         updateChartData()
     }
@@ -188,19 +182,6 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
         
     }
     
-    //MARK: - Gradient
-    
-    func setGradientBackground() {
-        let colorTop = UIColor(hexString: "213C66")!.darken(byPercentage: 0.15)!.cgColor
-        let colorBottom = UIColor.black.cgColor
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.colors = [colorTop, colorBottom]
-        gradientLayer.locations = [0.0, 1.0]
-        gradientLayer.frame = self.view.bounds
-        view.layer.insertSublayer(gradientLayer, at:0)
-    }
-    
-    
     //MARK: - Add Category
     
     @IBOutlet weak var addCategoryView: UIView!
@@ -282,7 +263,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
         self.blurEffectView.removeFromSuperview()
         categoryText.text = ""
         UIView.animate(withDuration: 0.2) {
-            self.addCategoryView.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+            self.addCategoryView.transform = CGAffineTransform(scaleX: 0.05, y: 0.05)
         } completion: { _ in
             self.addCategoryOutlet.isEnabled = true
             self.addCategoryView.removeFromSuperview()
@@ -311,7 +292,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, M
         tap.isEnabled = false
         self.view.endEditing(true)
         
-        demonstrationView.layer.cornerRadius = 10
+        demonstrationView.layer.cornerRadius = demonstrationView.frame.size.width/2
         demonstrationViewText.font = UIFont.boldSystemFont(ofSize: 20)
         
         let previewColorSlider = DefaultPreviewView()
@@ -467,8 +448,7 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
                 }
             }
         }
-        guard let destination = segue.destination as? MoneyBoxViewController else { return }
-        destination.delegate = self
+        
     }
     
 }
