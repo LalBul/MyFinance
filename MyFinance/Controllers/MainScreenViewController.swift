@@ -63,14 +63,14 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         mainTableView.backgroundColor = UIColor.clear
         mainTableView.layer.cornerRadius = 10
         mainTableView.rowHeight = 60
+        mainTableView.showsHorizontalScrollIndicator = false
+        mainTableView.showsVerticalScrollIndicator = false
     
         chartView.animate(xAxisDuration: 1, yAxisDuration: 1)
         
         categoryText.delegate = self
         
         navigationController?.navigationBar.barTintColor = view.backgroundColor
-        
-       
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -223,7 +223,6 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         colorViewText.font = UIFont.boldSystemFont(ofSize: 20)
         
         addCategoryView.layer.cornerRadius = 20
-//        addCategoryView.center = view.center
         addCategoryView.center.y = view.center.x + 100
         addCategoryView.center.x = view.center.x
         addCategoryView.transform = CGAffineTransform(scaleX: 0.05, y: 0.1)
