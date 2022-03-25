@@ -15,7 +15,7 @@ import ChameleonFramework
 import WatchConnectivity
 
 
-class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
+class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, UIColorPickerViewControllerDelegate {
   
     func addCollectedToMoneyBox(sum: Double) {
         moneyBoxes = realm.objects(MoneyBox.self)
@@ -51,7 +51,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         limitViewPresent()
         configureWatchKitSesstion()
         sendAWData()
-
+        
         preparedTableView.delegate = self
         preparedTableView.dataSource = self
         preparedTableView.backgroundColor = UIColor.clear
@@ -63,10 +63,14 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         mainTableView.backgroundColor = UIColor.clear
         mainTableView.layer.cornerRadius = 10
         mainTableView.rowHeight = 60
-        
+    
         chartView.animate(xAxisDuration: 1, yAxisDuration: 1)
         
+        categoryText.delegate = self
+        
         navigationController?.navigationBar.barTintColor = view.backgroundColor
+        
+       
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -186,9 +190,11 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var addCategoryView: UIView!
     @IBOutlet weak var colorView: UIView!
+    @IBOutlet weak var sampleView: UIView!
     @IBOutlet weak var colorViewText: UILabel!
     @IBOutlet weak var categoryText: UITextField!
     @IBOutlet weak var colorButton: UIButton!
+    @IBOutlet weak var viewAddAndColorButton: UIView!
     
     @IBOutlet weak var addCategoryOutlet: UIBarButtonItem!
     @IBAction func addCategory(_ sender: UIBarButtonItem) {
@@ -203,18 +209,23 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
     fileprivate func addCategoryViewSettings() {
         addBlurEffect()
         
+        
         tap = UITapGestureRecognizer(target: self, action: #selector(tapMainView))
         tap.isEnabled = true
         tap.delegate = self
         
-        colorView.layer.cornerRadius = 10
-        colorButton.setImage(UIImage(named:"palette"), for: .normal)
+        sampleView.layer.cornerRadius = 10
+        viewAddAndColorButton.layer.cornerRadius = 10
+        colorView.layer.cornerRadius = colorView.frame.size.width/2
         colorView.backgroundColor = HexColor("#132743")
+        colorButton.titleLabel?.text = ""
         
         colorViewText.font = UIFont.boldSystemFont(ofSize: 20)
         
         addCategoryView.layer.cornerRadius = 20
-        addCategoryView.center = view.center
+//        addCategoryView.center = view.center
+        addCategoryView.center.y = view.center.x + 100
+        addCategoryView.center.x = view.center.x
         addCategoryView.transform = CGAffineTransform(scaleX: 0.05, y: 0.1)
         
         categoryText.layer.cornerRadius = 10
@@ -227,7 +238,11 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
         
         UIView.animate(withDuration: 0.2) {
             self.addCategoryView.transform = CGAffineTransform.identity
+            self.categoryText.becomeFirstResponder()
+        } completion: { _ in
+            
         }
+        
     }
     
     @IBAction func addCategoryButton(_ sender: UIButton) {
@@ -289,28 +304,47 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBAction func toColourSettings(_ sender: UIButton) {
         
-        tap.isEnabled = false
-        self.view.endEditing(true)
-        
-        demonstrationView.layer.cornerRadius = demonstrationView.frame.size.width/2
-        demonstrationViewText.font = UIFont.boldSystemFont(ofSize: 20)
-        
-        let previewColorSlider = DefaultPreviewView()
-        previewColorSlider.side = .right
-        previewColorSlider.animationDuration = 0
-        previewColorSlider.offsetAmount = 10
-        
-        newColorSlider = ColorSlider(orientation: .horizontal, previewView: previewColorSlider)
-        newColorSlider.frame = CGRect(x: 0, y: 0, width: 300, height: 40)
-        newColorSlider.center.x = colorSlider.center.x
-        newColorSlider.center.y = newColorSlider.center.y + 25
-        newColorSlider.addTarget(nil, action: #selector(changedColor(_:)), for: .valueChanged)
-        
-        colorSettingsUIView.layer.cornerRadius = 20
-        colorSettingsUIView.center = view.center
-        view.addSubview(colorSettingsUIView)
-        
-        colorSlider.addSubview(newColorSlider)
+        if #available(iOS 14.0, *) {
+            let colorPickerVC = UIColorPickerViewController()
+            colorPickerVC.delegate = self
+            present(colorPickerVC, animated: true)
+        } else {
+            tap.isEnabled = false
+            self.view.endEditing(true)
+
+            demonstrationView.layer.cornerRadius = demonstrationView.frame.size.width/2
+            demonstrationViewText.font = UIFont.boldSystemFont(ofSize: 20)
+
+            let previewColorSlider = DefaultPreviewView()
+            previewColorSlider.side = .right
+            previewColorSlider.animationDuration = 0
+            previewColorSlider.offsetAmount = 10
+
+            newColorSlider = ColorSlider(orientation: .horizontal, previewView: previewColorSlider)
+            newColorSlider.frame = CGRect(x: 0, y: 0, width: 300, height: 40)
+            newColorSlider.center.x = colorSlider.center.x
+            newColorSlider.center.y = newColorSlider.center.y + 25
+            newColorSlider.addTarget(nil, action: #selector(changedColor(_:)), for: .valueChanged)
+
+            colorSettingsUIView.layer.cornerRadius = 20
+            colorSettingsUIView.center = view.center
+            view.addSubview(colorSettingsUIView)
+
+            colorSlider.addSubview(newColorSlider)
+        }
+
+    }
+    
+    @available(iOS 14.0, *)
+    func colorPickerViewController(_ viewController: UIColorPickerViewController, didSelect color: UIColor, continuously: Bool) {
+        let color = viewController.selectedColor
+        colorView.backgroundColor = color
+    }
+    
+    @available(iOS 14.0, *)
+    func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
+        let color = viewController.selectedColor
+        colorView.backgroundColor = color
     }
     
     @objc func changedColor(_ slider: ColorSlider) {
@@ -451,6 +485,8 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
         
     }
     
+    
+    
 }
 
 //MARK: - WC (Apple Watch)
@@ -503,5 +539,21 @@ extension MainScreenViewController: WCSessionDelegate {
     func sessionDidDeactivate(_ session: WCSession) {
         
     }
+}
+
+extension MainScreenViewController: UITextFieldDelegate {
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        if textField == categoryText {
+            colorViewText.text = categoryText.text ?? ""
+            if colorViewText.text == "" {
+                colorViewText.text = "Category"
+            }
+            print(categoryText.text ?? "")
+        }
+
+    }
+    
+    
 }
 
