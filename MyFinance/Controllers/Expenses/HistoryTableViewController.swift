@@ -16,6 +16,7 @@ class HistoryTableViewController: UITableViewController, SwipeTableViewCellDeleg
         loadItems()
         
         tableView.rowHeight = 100
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {

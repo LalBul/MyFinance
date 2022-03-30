@@ -47,7 +47,9 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        updateChartData()
+        DispatchQueue.main.async {
+            self.updateChartData()
+        }
         limitViewPresent()
         configureWatchKitSesstion()
         sendAWData()
@@ -71,6 +73,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         categoryText.delegate = self
         
         navigationController?.navigationBar.barTintColor = view.backgroundColor
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -82,10 +85,8 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         sendAWData()
         checkLimit()
         updateChartData()
+        self.tabBarController?.tabBar.isHidden = false
     }
-    
-    private var blurEffectView = UIVisualEffectView()
-    private var tap = UITapGestureRecognizer()
     
     func checkLimit() {
         let limit = defaults.double(forKey: "Limit")
@@ -182,7 +183,10 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         let data = PieChartData(dataSet: dataSet)
         chartView.data = data
         
-        mainTableView.reloadData()
+        DispatchQueue.main.async {
+            self.mainTableView.reloadData()
+        }
+        
         
     }
     
@@ -222,6 +226,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         
         colorViewText.font = UIFont.boldSystemFont(ofSize: 20)
         
+        addCategoryView.alpha = 0
         addCategoryView.layer.cornerRadius = 20
         addCategoryView.center.y = view.center.x + 100
         addCategoryView.center.x = view.center.x
@@ -236,12 +241,14 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         addCategoryOutlet.isEnabled = false
         
         UIView.animate(withDuration: 0.2) {
+            self.addCategoryView.center.y = self.view.center.y - 100
             self.addCategoryView.transform = CGAffineTransform.identity
             self.categoryText.becomeFirstResponder()
+            self.addCategoryView.alpha = 1
         } completion: { _ in
             
         }
-        
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     @IBAction func addCategoryButton(_ sender: UIButton) {
@@ -276,15 +283,21 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
     func backAnimate() {
         self.blurEffectView.removeFromSuperview()
         categoryText.text = ""
-        UIView.animate(withDuration: 0.2) {
+        UIView.animate(withDuration: 0.25) {
+            self.addCategoryView.alpha = 0
+            self.addCategoryView.center.y = self.view.center.y + 150
             self.addCategoryView.transform = CGAffineTransform(scaleX: 0.05, y: 0.05)
         } completion: { _ in
             self.addCategoryOutlet.isEnabled = true
             self.addCategoryView.removeFromSuperview()
         }
         navigationController?.navigationBar.isHidden = false
+        self.tabBarController?.tabBar.isHidden = false
+        
     }
     
+    private var blurEffectView = UIVisualEffectView()
+    private var tap = UITapGestureRecognizer()
     func addBlurEffect() {
         let blurEffect = UIBlurEffect(style: .dark)
         blurEffectView = UIVisualEffectView(effect: blurEffect)
@@ -394,11 +407,11 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == mainTableView {
-            if categoryArray!.count <= 2 {
-                mainTableView.isScrollEnabled = false
-            } else {
-                mainTableView.isScrollEnabled = true
-            }
+//            if categoryArray!.count <= 2 {
+//                mainTableView.isScrollEnabled = false
+//            } else {
+//                mainTableView.isScrollEnabled = true
+//            }
             return categoryArray?.count ?? 2
         } else if tableView == preparedTableView {
             preparedTableView.isScrollEnabled = false
@@ -450,7 +463,10 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
                 }
             }
         }
-        return [deleteAction]
+        let editAction = SwipeAction(style: .default, title: "Edit") { swipeAction, indexPath in
+        }
+        
+        return [deleteAction, editAction]
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

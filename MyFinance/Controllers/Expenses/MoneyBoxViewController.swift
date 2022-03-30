@@ -25,7 +25,10 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationController?.navigationBar.isTranslucent = true
         
+        purpose.delegate = self
+        
         loadItems()
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     func loadItems() {
@@ -212,6 +215,21 @@ extension MoneyBoxViewController: DataCollectionProtocol {
         }
        
     }
+    
+    
+}
+
+extension MoneyBoxViewController: UITextFieldDelegate {
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == purpose {
+            let allowedCharacters = CharacterSet(charactersIn:",0123456789")
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        return true
+    }
+    
     
     
 }

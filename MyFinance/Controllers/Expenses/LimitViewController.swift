@@ -11,6 +11,7 @@ class LimitViewController: UIViewController {
     
     @IBOutlet weak var numberLabel: UILabel!
     @IBOutlet var buttons: [UIButton]!
+    @IBOutlet weak var numberBackgroundView: UIView!
     private var pointBool = true
     let defaults = UserDefaults.standard
     
@@ -19,6 +20,9 @@ class LimitViewController: UIViewController {
         for i in buttons {
             i.layer.cornerRadius = i.frame.size.height / 2
         }
+        numberBackgroundView.layer.cornerRadius = 15
+        
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     //Логика ввода точки, позволяет поставить её только один раз
@@ -68,9 +72,13 @@ class LimitViewController: UIViewController {
                 }
             }
             numberLabel.text?.removeLast()
+        } else if numberLabel.text == "" {
+            numberLabel.text = "0"
         }
         
         
     }
     
 }
+
+

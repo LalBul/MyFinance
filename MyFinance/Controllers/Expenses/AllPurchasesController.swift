@@ -34,6 +34,7 @@ class AllPurchasesController: UIViewController {
         self.navigationController?.navigationBar.isTranslucent = true
         
         loadItems()
+        self.tabBarController?.tabBar.isHidden = true
     }
     
     func loadItems() {

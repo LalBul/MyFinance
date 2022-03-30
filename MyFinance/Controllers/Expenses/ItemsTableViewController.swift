@@ -11,7 +11,7 @@ import ChameleonFramework
 import SwipeCellKit
 import SwiftUI
 
-class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegate, UITextFieldDelegate, UITextViewDelegate {
+class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegate, UITextViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,6 +39,7 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         navigationItem.titleView = hStack
         
         amountTextField.delegate = self
+        self.tabBarController?.tabBar.isHidden = true
   
     }
 
@@ -67,16 +68,33 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
     @IBOutlet weak var amountTextField: UITextField!
     @IBOutlet weak var cancelOutlet: UIButton!
     
+    @IBOutlet weak var backgroundButtonsView: UIView!
+    @IBOutlet weak var dateEnter: UITextField!
+    
     private var blurEffectView = UIVisualEffectView()
+    
+    private let datePicker = UIDatePicker()
     
     fileprivate func addItemViewSettings(_ sender: UIBarButtonItem) {
         tableView.isScrollEnabled = false
    
+        addItemView.alpha = 0
         addItemView.layer.cornerRadius = 15
         addItemView.center = view.center
         addItemView.center.y -= 500
         addItemView.center.x += 150
         addItemView.transform = CGAffineTransform(scaleX: 0.25, y: 0.25)
+        
+        datePicker.datePickerMode = .date
+        if #available(iOS 13.4, *) {
+            datePicker.preferredDatePickerStyle = .wheels
+        } else {
+            return
+        }
+        dateEnter.addDoneOnKeyboard(withTarget: self, action: #selector(donePressed), shouldShowPlaceholder: true)
+        dateEnter.inputView = datePicker
+   
+        backgroundButtonsView.layer.cornerRadius = 15
         
         wasteTextField.attributedPlaceholder = NSAttributedString(string: "Waste", attributes: [NSAttributedString.Key.foregroundColor : UIColor.darkGray, NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 30)])
         wasteTextField.layer.cornerRadius = 15
@@ -99,9 +117,19 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
             self.addItemView.center.y = self.view.center.x
             self.addItemView.center.x = self.view.center.x
             self.addItemView.transform = CGAffineTransform.identity
+            self.addItemView.alpha = 1
             sender.isEnabled = false
+        } completion: { _ in
+            
         }
         self.wasteTextField.becomeFirstResponder()
+    }
+    
+    @objc func donePressed() {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        dateEnter.text = formatter.string(from: datePicker.date)
+        self.view.endEditing(true)
     }
     
     @IBOutlet weak var addItemOutlet: UIBarButtonItem!
@@ -152,16 +180,15 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         }
     }
     
-    var pointBool = true
-    func textFieldDidChangeSelection(_ textField: UITextField) {
-                
-    }
+
     
+ 
     @IBAction func cancelAddItem(_ sender: UIButton) {
         backAnimate()
     }
     
     func backAnimate() {
+        
         blurEffectView.removeFromSuperview()
         navigationController?.navigationBar.isHidden = false
         tableView.isScrollEnabled = true
@@ -226,6 +253,19 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
     }
     
     
+    
+}
+
+extension ItemsTableViewController: UITextFieldDelegate {
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == amountTextField {
+            let allowedCharacters = CharacterSet(charactersIn:",0123456789")
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        return true
+    }
     
 }
 

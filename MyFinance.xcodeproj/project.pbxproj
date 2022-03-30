@@ -35,6 +35,7 @@
 		4C8F5C5D2698037A0025016E /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C8F5C5C2698037A0025016E /* CategoryCell.swift */; };
 		4CB3C6892645B8140083531D /* LimitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB3C6882645B8140083531D /* LimitViewController.swift */; };
 		4CB91B14263DB88700806CA8 /* ItemsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB91B13263DB88700806CA8 /* ItemsTableViewController.swift */; };
+		4CC6E3C827F34AE200C3D943 /* MainFinanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CC6E3C727F34AE200C3D943 /* MainFinanceViewController.swift */; };
 		4CCC87822644240900069B11 /* ItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CCC87812644240900069B11 /* ItemCell.swift */; };
 		4CEAAE0B264ED7C400177992 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C85A07F264D7993007F402F /* WatchConnectivity.framework */; };
 		4CFC7B6B2651CF7200239D5A /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4CFC7B692651CF7200239D5A /* Interface.storyboard */; };
@@ -144,6 +145,7 @@
 		4CB34B6126716250005CCD0F /* MyFinance.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyFinance.entitlements; sourceTree = "<group>"; };
 		4CB3C6882645B8140083531D /* LimitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitViewController.swift; sourceTree = "<group>"; };
 		4CB91B13263DB88700806CA8 /* ItemsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsTableViewController.swift; sourceTree = "<group>"; };
+		4CC6E3C727F34AE200C3D943 /* MainFinanceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainFinanceViewController.swift; sourceTree = "<group>"; };
 		4CCC87812644240900069B11 /* ItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCell.swift; sourceTree = "<group>"; };
 		4CFC7B672651CF7200239D5A /* AWVersion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AWVersion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CFC7B6A2651CF7200239D5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
@@ -280,12 +282,8 @@
 		4CB91B15263DB89200806CA8 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				4CB3C6882645B8140083531D /* LimitViewController.swift */,
-				4C306ED0269100BE00B22D49 /* HistoryTableViewController.swift */,
-				4C0F994C263DA9B000AA8749 /* MainScreenViewController.swift */,
-				4CB91B13263DB88700806CA8 /* ItemsTableViewController.swift */,
-				4C87E4E42702F8BD00674C6A /* AllPurchasesController.swift */,
-				4C1BC6DC274836E7009D8094 /* MoneyBoxViewController.swift */,
+				4CC6E3C627F34AB200C3D943 /* Finance */,
+				4CC6E3C527F34A8300C3D943 /* Expenses */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -298,6 +296,27 @@
 				4C1BC6DE274838FF009D8094 /* CollectionCell */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		4CC6E3C527F34A8300C3D943 /* Expenses */ = {
+			isa = PBXGroup;
+			children = (
+				4CB3C6882645B8140083531D /* LimitViewController.swift */,
+				4C306ED0269100BE00B22D49 /* HistoryTableViewController.swift */,
+				4C0F994C263DA9B000AA8749 /* MainScreenViewController.swift */,
+				4CB91B13263DB88700806CA8 /* ItemsTableViewController.swift */,
+				4C87E4E42702F8BD00674C6A /* AllPurchasesController.swift */,
+				4C1BC6DC274836E7009D8094 /* MoneyBoxViewController.swift */,
+			);
+			path = Expenses;
+			sourceTree = "<group>";
+		};
+		4CC6E3C627F34AB200C3D943 /* Finance */ = {
+			isa = PBXGroup;
+			children = (
+				4CC6E3C727F34AE200C3D943 /* MainFinanceViewController.swift */,
+			);
+			path = Finance;
 			sourceTree = "<group>";
 		};
 		4CFC7B682651CF7200239D5A /* AWVersion */ = {
@@ -568,6 +587,7 @@
 				4C1BC6E027483916009D8094 /* MoneyBoxCell.swift in Sources */,
 				4C0F9960263DAC0400AA8749 /* Item.swift in Sources */,
 				4C8ACFFC27071E6800E69525 /* AllPurchasesItemCell.swift in Sources */,
+				4CC6E3C827F34AE200C3D943 /* MainFinanceViewController.swift in Sources */,
 				4C0F9949263DA9B000AA8749 /* AppDelegate.swift in Sources */,
 				4C0F994B263DA9B000AA8749 /* SceneDelegate.swift in Sources */,
 				4C0F995E263DAB5900AA8749 /* Category.swift in Sources */,
