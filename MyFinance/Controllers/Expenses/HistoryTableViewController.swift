@@ -8,6 +8,8 @@
 import UIKit
 import RealmSwift
 import SwipeCellKit
+import ViewAnimator
+import ChameleonFramework
 
 class HistoryTableViewController: UITableViewController, SwipeTableViewCellDelegate {
     
@@ -17,6 +19,10 @@ class HistoryTableViewController: UITableViewController, SwipeTableViewCellDeleg
         
         tableView.rowHeight = 100
         self.tabBarController?.tabBar.isHidden = true
+        
+        let animation = AnimationType.from(direction: .right, offset: 50)
+        UIView.animate(views: tableView.visibleCells,
+                       animations: [animation])
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -28,6 +34,7 @@ class HistoryTableViewController: UITableViewController, SwipeTableViewCellDeleg
     var historyItemsArray: Results<HistoryItem>?
     
     @IBAction func deleteAllHistory(_ sender: UIBarButtonItem) {
+        addHaptic()
         do {
             try realm.write {
                 realm.delete(historyItemsArray!)
@@ -69,7 +76,7 @@ class HistoryTableViewController: UITableViewController, SwipeTableViewCellDeleg
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
         guard orientation == .right else { return nil }
-        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { swipeAction, indexPath in
+        let deleteAction = SwipeAction(style: .destructive, title: "Удвлить") { swipeAction, indexPath in
             do {
                 try self.realm.write {
                     self.realm.delete(self.historyItemsArray![indexPath.row])
@@ -79,6 +86,7 @@ class HistoryTableViewController: UITableViewController, SwipeTableViewCellDeleg
                 print("Fail delete cell")
             }
         }
+        deleteAction.backgroundColor = HexColor("#9B3636")
         return [deleteAction]
     }
     

@@ -8,15 +8,22 @@
 import UIKit
 import IQKeyboardManager
 import WatchConnectivity
+import Firebase
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         watchConnect()
+        
         print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true))
+        
         IQKeyboardManager.shared().isEnabled = true
         IQKeyboardManager.shared().keyboardDistanceFromTextField = 80
+        
+        FirebaseApp.configure()
+        
+        
         return true
     }
     

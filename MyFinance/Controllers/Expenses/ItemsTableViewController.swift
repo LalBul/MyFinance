@@ -10,9 +10,18 @@ import RealmSwift
 import ChameleonFramework
 import SwipeCellKit
 import SwiftUI
+import ViewAnimator
 
-class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegate, UITextViewDelegate {
+protocol UpdateItemsTableViewController {
+    func update()
+}
+
+class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegate, UpdateItemsTableViewController {
     
+    func update() {
+        loadItems()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         loadItems()
@@ -38,168 +47,44 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         
         navigationItem.titleView = hStack
         
-        amountTextField.delegate = self
         self.tabBarController?.tabBar.isHidden = true
+        
+        let animation = AnimationType.from(direction: .left, offset: 100)
+        UIView.animate(views: tableView.visibleCells,
+                       animations: [animation])
   
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        loadItems()
-        
+        tableView.reloadData()
     }
                             
     let realm = try! Realm()
     var items: Results<Item>?
+
     var selectedCategory: Category?
     let defaults = UserDefaults.standard
     var defaultValue: Double = 0
     
+    @IBOutlet weak var addItemOutlet: UIBarButtonItem!
+    
     func loadItems() {
-        items = selectedCategory?.items.sorted(byKeyPath: "date")
+        items = selectedCategory?.items.sorted(byKeyPath: "date", ascending: true)
         tableView.reloadData()
     }
 
-    //MARK: - Add Item
-    
-    @IBOutlet var addItemView: UIView!
-    
-    @IBOutlet weak var wasteTextField: UITextField!
-    @IBOutlet weak var amountTextField: UITextField!
-    @IBOutlet weak var cancelOutlet: UIButton!
-    
-    @IBOutlet weak var backgroundButtonsView: UIView!
-    @IBOutlet weak var dateEnter: UITextField!
-    
-    private var blurEffectView = UIVisualEffectView()
-    
-    private let datePicker = UIDatePicker()
-    
-    fileprivate func addItemViewSettings(_ sender: UIBarButtonItem) {
-        tableView.isScrollEnabled = false
-   
-        addItemView.alpha = 0
-        addItemView.layer.cornerRadius = 15
-        addItemView.center = view.center
-        addItemView.center.y -= 500
-        addItemView.center.x += 150
-        addItemView.transform = CGAffineTransform(scaleX: 0.25, y: 0.25)
-        
-        datePicker.datePickerMode = .date
-        if #available(iOS 13.4, *) {
-            datePicker.preferredDatePickerStyle = .wheels
-        } else {
-            return
-        }
-        dateEnter.addDoneOnKeyboard(withTarget: self, action: #selector(donePressed), shouldShowPlaceholder: true)
-        dateEnter.inputView = datePicker
-   
-        backgroundButtonsView.layer.cornerRadius = 15
-        
-        wasteTextField.attributedPlaceholder = NSAttributedString(string: "Waste", attributes: [NSAttributedString.Key.foregroundColor : UIColor.darkGray, NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 30)])
-        wasteTextField.layer.cornerRadius = 15
-        
-        amountTextField.attributedPlaceholder = NSAttributedString(string: "Amount", attributes: [NSAttributedString.Key.foregroundColor : UIColor.darkGray])
-        amountTextField.layer.cornerRadius = 20
-        amountTextField.keyboardType = .decimalPad
-        
-        cancelOutlet.setImage(UIImage(named:"cancel"), for: .normal)
-        
-        let blurEffect = UIBlurEffect(style: .dark)
-        blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.frame = self.view.bounds
-        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
-        view.addSubview(blurEffectView)
-        view.addSubview(addItemView)
-        
-        UIView.animate(withDuration: 0.25) {
-            self.addItemView.center.y = self.view.center.x
-            self.addItemView.center.x = self.view.center.x
-            self.addItemView.transform = CGAffineTransform.identity
-            self.addItemView.alpha = 1
-            sender.isEnabled = false
-        } completion: { _ in
-            
-        }
-        self.wasteTextField.becomeFirstResponder()
-    }
-    
-    @objc func donePressed() {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        dateEnter.text = formatter.string(from: datePicker.date)
-        self.view.endEditing(true)
-    }
-    
-    @IBOutlet weak var addItemOutlet: UIBarButtonItem!
-    @IBAction func addItemButton(_ sender: UIBarButtonItem) {
-        // ------- Haptic вибрация
-        let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
-        impactFeedbackgenerator.prepare()
-        impactFeedbackgenerator.impactOccurred()
-        // -------
-        addItemViewSettings(sender)
-    }
-    
-    @IBAction func addItem(_ sender: UIButton) {
-        let numberFormatter = NumberFormatter()
-        numberFormatter.decimalSeparator = ","
-        if let waste = wasteTextField.text, let amount = amountTextField.text {
-            var format = numberFormatter.number(from: amount)
-            if format == nil {
-                numberFormatter.decimalSeparator = "."
-                format = numberFormatter.number(from: amount)
-                format = 0
-            }
-            guard let amountInDouble = format as? Double else {fatalError("Error converting in Double")}
-            let newItem = Item()
-            newItem.date = Date()
-            if waste != "" {
-                newItem.title = waste
-            } else {
-                newItem.title = "New Purchase"
-            }
-            if amountInDouble > 0 {
-                newItem.amount = amountInDouble
-            } else {
-                newItem.amount = 0
-            }
-            do {
-                try realm.write {
-                    selectedCategory?.items.append(newItem)
-                    if defaults.double(forKey: "Limit") > 0  {
-                        defaults.setValue(defaultValue-amountInDouble, forKey: "Limit")
-                    }
-                    backAnimate()
-                    tableView.reloadData()
-                }
-            } catch {
-                print("Error save item")
-            }
-        }
-    }
-    
-
-    
- 
-    @IBAction func cancelAddItem(_ sender: UIButton) {
-        backAnimate()
-    }
-    
-    func backAnimate() {
-        
-        blurEffectView.removeFromSuperview()
-        navigationController?.navigationBar.isHidden = false
-        tableView.isScrollEnabled = true
-        wasteTextField.text = ""
-        amountTextField.text = ""
-        UIView.animate(withDuration: 0.25) {
-            self.addItemView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-            self.addItemView.center.y += 500
-            self.addItemOutlet.isEnabled = true
-        } completion: { _ in
-            self.addItemView.removeFromSuperview()
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToAddItem" {
+            let destinationVC = segue.destination as! AddItemViewController
+            destinationVC.selectedCategory = selectedCategory
+            destinationVC.delegate = self
         }
         
     }
@@ -229,7 +114,7 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
         guard orientation == .right else { return nil }
-        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { swipeAction, indexPath in
+        let deleteAction = SwipeAction(style: .destructive, title: "Удалить") { swipeAction, indexPath in
             do {
                 try self.realm.write {
                     let newHistoryItem = HistoryItem()
@@ -243,30 +128,18 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
                         
                     }
                     self.realm.delete((self.selectedCategory?.items[indexPath.row])!)
-                    tableView.reloadData()
+                    self.loadItems()
                 }
             } catch {
                 print("Fail delete cell")
             }
         }
+        deleteAction.backgroundColor = HexColor("#9B3636")
         return [deleteAction]
     }
     
-    
-    
 }
 
-extension ItemsTableViewController: UITextFieldDelegate {
-    
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == amountTextField {
-            let allowedCharacters = CharacterSet(charactersIn:",0123456789")
-            let characterSet = CharacterSet(charactersIn: string)
-            return allowedCharacters.isSuperset(of: characterSet)
-        }
-        return true
-    }
-    
-}
+
 
 

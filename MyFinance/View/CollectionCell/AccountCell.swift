@@ -1,21 +1,17 @@
 //
-//  CollectionCell.swift
+//  AccountCell.swift
 //  MyFinance
 //
-//  Created by Вова Сербин on 19.11.2021.
+//  Created by Вова Сербин on 14.04.2022.
 //
 
 import UIKit
 
-protocol DataCollectionProtocol {
-    func deleteData(index: Int)
-}
-
-class MoneyBoxCell: UICollectionViewCell {
+class AccountCell: UICollectionViewCell {
     
-    @IBOutlet weak var name: UILabel!
-    @IBOutlet weak var purpose: UILabel!
+    @IBOutlet weak var title: UILabel!
     @IBOutlet weak var collected: UILabel!
+    @IBOutlet weak var currency: UILabel!
     @IBOutlet weak var view: UIView!
     
     var delegate: DataCollectionProtocol?

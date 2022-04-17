@@ -8,15 +8,105 @@
 import UIKit
 import SwiftUI
 import RealmSwift
+
 import Charts
 import SwipeCellKit
 import ColorSlider
 import ChameleonFramework
 import WatchConnectivity
 
+protocol UpdateMainScreenViewController {
+    func update()
+}
+
+func addHaptic() {
+    // ------- Haptic вибрация
+    let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
+    selectionFeedbackGenerator.selectionChanged()
+    // -------
+}
 
 class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, UIColorPickerViewControllerDelegate {
   
+    @IBOutlet weak var mainTableView: UITableView!
+    @IBOutlet weak var preparedTableView: UITableView!
+    @IBOutlet weak var limitTodayLabel: UILabel!
+    @IBOutlet weak var addLimitButton: UIBarButtonItem!
+ 
+    var realm = try! Realm()
+    var categoryArray: Results<Category>?
+    var moneyBoxes: Results<MoneyBox>?
+    let defaults = UserDefaults.standard
+    var session: WCSession?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        DispatchQueue.main.async {
+            self.updateChartData()
+        }
+        checkLimit()
+        configureWatchKitSesstion()
+        sendAWData()
+        checkLimitLabel()
+        
+        preparedTableView.delegate = self
+        preparedTableView.dataSource = self
+        preparedTableView.backgroundColor = UIColor.clear
+        preparedTableView.layer.cornerRadius = 10
+        preparedTableView.rowHeight = 60
+        
+        mainTableView.delegate = self
+        mainTableView.dataSource = self
+        mainTableView.backgroundColor = UIColor.clear
+        mainTableView.layer.cornerRadius = 10
+        mainTableView.rowHeight = 60
+        mainTableView.showsHorizontalScrollIndicator = false
+        mainTableView.showsVerticalScrollIndicator = false
+    
+        chartView.animate(xAxisDuration: 1, yAxisDuration: 1)
+        
+        categoryText.delegate = self
+        
+        tabBarController?.tabBar.tintColor = HexColor("#3762A5")
+        
+        navigationController?.navigationBar.barTintColor = view.backgroundColor
+        self.tabBarController?.tabBar.isHidden = false
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        sendAWData()
+        checkLimitLabel()
+        checkLimit()
+    }
+    
+    override func viewWillAppear (_ animated: Bool) {
+        super.viewWillAppear(animated)
+        sendAWData()
+        checkLimitLabel()
+        checkLimit()
+        updateChartData()
+        self.tabBarController?.tabBar.isHidden = false
+    }
+    
+    func checkLimitLabel() {
+        let limit = defaults.double(forKey: "Limit")
+        if limit > 0 {
+            limitTodayLabel.text = "Ваш лимит: " + String(limit)
+        } else if limit < 0 {
+            limitTodayLabel.text = "Вы в минусе на: " + String(limit)
+        } else {
+            limitTodayLabel.text = "Лимит отсутствует"
+        }
+    }
+    
+    @objc func tapMainView(recognizer: UITapGestureRecognizer){
+        backAnimate()
+        tap.isEnabled = false
+    }
+    
+    //MARK: - Money Box functionality
+    
     func addCollectedToMoneyBox(sum: Double) {
         moneyBoxes = realm.objects(MoneyBox.self)
         if moneyBoxes!.count > 0 {
@@ -34,118 +124,29 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         }
     }
     
-    @IBOutlet weak var mainTableView: UITableView!
-    @IBOutlet weak var preparedTableView: UITableView!
-    @IBOutlet weak var limitTodayLabel: UILabel!
-    @IBOutlet weak var addLimitButton: UIBarButtonItem!
-    
-    var realm = try! Realm()
-    var categoryArray: Results<Category>?
-    var moneyBoxes: Results<MoneyBox>?
-    let defaults = UserDefaults.standard
-    var session: WCSession?
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        DispatchQueue.main.async {
-            self.updateChartData()
-        }
-        limitViewPresent()
-        configureWatchKitSesstion()
-        sendAWData()
-        
-        preparedTableView.delegate = self
-        preparedTableView.dataSource = self
-        preparedTableView.backgroundColor = UIColor.clear
-        preparedTableView.layer.cornerRadius = 15
-        preparedTableView.rowHeight = 60
-        
-        mainTableView.delegate = self
-        mainTableView.dataSource = self
-        mainTableView.backgroundColor = UIColor.clear
-        mainTableView.layer.cornerRadius = 10
-        mainTableView.rowHeight = 60
-        mainTableView.showsHorizontalScrollIndicator = false
-        mainTableView.showsVerticalScrollIndicator = false
-    
-        chartView.animate(xAxisDuration: 1, yAxisDuration: 1)
-        
-        categoryText.delegate = self
-        
-        navigationController?.navigationBar.barTintColor = view.backgroundColor
-        self.tabBarController?.tabBar.isHidden = false
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        sendAWData()
-    }
-    
-    override func viewWillAppear (_ animated: Bool) {
-        super.viewWillAppear(animated)
-        sendAWData()
-        checkLimit()
-        updateChartData()
-        self.tabBarController?.tabBar.isHidden = false
-    }
-    
-    func checkLimit() {
-        let limit = defaults.double(forKey: "Limit")
-        if limit > 0 {
-            addLimitButton.isEnabled = false
-            limitTodayLabel.text = "Left: " + String(limit)
-        } else if limit < 0 {
-            addLimitButton.isEnabled = false
-            limitTodayLabel.text = String(limit)
-        } else {
-            limitTodayLabel.text = "There is no limit"
-        }
-    }
-    
-    @objc func tapMainView(recognizer: UITapGestureRecognizer){
-        backAnimate()
-        tap.isEnabled = false
-    }
-    
     //MARK: - Present Limit View
     
-    @IBOutlet weak var startLimitView: UIView!
-    @IBOutlet weak var limitLabel: UILabel!
-    @IBOutlet weak var limitLabelView: UIView!
-    
-    @IBAction func okLimit(_ sender: UIButton) {
-        blurEffectView.removeFromSuperview()
-        navigationController?.navigationBar.isHidden = false
-        UIView.animate(withDuration: 0.25) {
-            self.startLimitView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-            self.startLimitView.center.y += 500
-        } completion: { _ in
-            self.startLimitView.removeFromSuperview()
-        }
-    }
-    
-    func limitViewPresent() {
+    func checkLimit() {
         if let limitDate = defaults.object(forKey: "Date") as? Date {
             let limitValue = defaults.double(forKey: "Limit")
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            if formatter.string(from: Date()) != formatter.string(from: limitDate) {
+            if Date() >= limitDate {
+                let newNotification = Notification()
+                newNotification.date = limitDate
+                newNotification.sum = limitValue
                 if limitValue > 0 {
-                    limitLabel.text = "Вы сохранили \(limitValue)"
                     addCollectedToMoneyBox(sum: limitValue)
-                } else if limitValue < 0 {
-                    limitLabel.text = "Вы в минусе на: \(limitValue)"
-                } else {return}
-                
-                defaults.setValue(nil, forKey: "Limit")
-                defaults.setValue(nil, forKey: "Date")
-                
-                limitLabelView.layer.cornerRadius = 20
-                startLimitView.center = view.center
-                startLimitView.layer.cornerRadius = 15
-                
-                addBlurEffect()
-                view.addSubview(startLimitView)
-                navigationController?.navigationBar.isHidden = true
+                    newNotification.done = true
+                }
+                newNotification.title = "Лимит"
+                do {
+                    try realm.write {
+                        realm.add(newNotification)
+                        defaults.setValue(nil, forKey: "Limit")
+                        defaults.setValue(nil, forKey: "Date")
+                    }
+                } catch {
+                    print(error)
+                }
             }
         }
     }
@@ -173,8 +174,19 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
             }
         }
         
-        let allAmount: Double = realm.objects(Item.self).sum(ofProperty: "amount")  // Сумма покупок за всё время
-        chartView.centerAttributedText = NSAttributedString(string: String(allAmount), attributes: [NSAttributedString.Key.foregroundColor : UIColor.black])
+        var allAmount: Double = 0
+        if let array = categoryArray {
+            for i in array {
+                for j in i.items {
+                    allAmount += j.amount
+                }
+            }
+        }
+        
+//        let allAmount: Double = realm.objects(Item.self).sum(ofProperty: "amount")  // Сумма покупок за всё время
+        chartView.centerAttributedText = NSAttributedString(string: String(allAmount), attributes: [NSAttributedString.Key.foregroundColor : UIColor.white, NSAttributedString.Key.font : UIFont(name: "HelveticaNeue-Bold", size: 14)!])
+        chartView.holeColor = .clear
+        chartView.transparentCircleColor = .clear
         
         let dataSet = PieChartDataSet(entries: downloadDataEnty, label: nil)
         dataSet.colors = colors
@@ -187,7 +199,17 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
             self.mainTableView.reloadData()
         }
         
-        
+    }
+    
+    //MARK: - Limit
+    
+    @IBAction func limitScreensButton(_ sender: UIBarButtonItem) {
+        addHaptic()
+        if defaults.object(forKey: "Date") as? Date != nil {
+            performSegue(withIdentifier: "goToLimit", sender: self)
+        } else {
+            performSegue(withIdentifier: "goToCreateLimit", sender: self)
+        }
     }
     
     //MARK: - Add Category
@@ -213,7 +235,6 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
     fileprivate func addCategoryViewSettings() {
         addBlurEffect()
         
-        
         tap = UITapGestureRecognizer(target: self, action: #selector(tapMainView))
         tap.isEnabled = true
         tap.delegate = self
@@ -227,13 +248,13 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         colorViewText.font = UIFont.boldSystemFont(ofSize: 20)
         
         addCategoryView.alpha = 0
-        addCategoryView.layer.cornerRadius = 20
+        addCategoryView.layer.cornerRadius = 10
         addCategoryView.center.y = view.center.x + 100
         addCategoryView.center.x = view.center.x
         addCategoryView.transform = CGAffineTransform(scaleX: 0.05, y: 0.1)
         
         categoryText.layer.cornerRadius = 10
-        categoryText.attributedPlaceholder = NSAttributedString(string: "Category name", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+        categoryText.attributedPlaceholder = NSAttributedString(string: "Название категории", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
         
         view.addSubview(addCategoryView)
         blurEffectView.addGestureRecognizer(tap)
@@ -260,7 +281,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
             //Create Category
             let newCategory = Category()
             if category == "" {
-                newCategory.title = "New Category"
+                newCategory.title = "Новая категория"
             } else {
                 newCategory.title = category
             }
@@ -407,11 +428,6 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == mainTableView {
-//            if categoryArray!.count <= 2 {
-//                mainTableView.isScrollEnabled = false
-//            } else {
-//                mainTableView.isScrollEnabled = true
-//            }
             return categoryArray?.count ?? 2
         } else if tableView == preparedTableView {
             preparedTableView.isScrollEnabled = false
@@ -449,7 +465,7 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
         guard orientation == .right else { return nil }
-        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { swipeAction, indexPath in
+        let deleteAction = SwipeAction(style: .destructive, title: "Удалить") { swipeAction, indexPath in
             if let array = self.categoryArray {
                 do {
                     try self.realm.write {
@@ -463,26 +479,20 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
                 }
             }
         }
-        let editAction = SwipeAction(style: .default, title: "Edit") { swipeAction, indexPath in
+        let editAction = SwipeAction(style: .default, title: "Изменить") { swipeAction, indexPath in
         }
+        
+        deleteAction.backgroundColor = HexColor("#9B3636")
         
         return [deleteAction, editAction]
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == mainTableView {
-            // ------- Haptic вибрация
-            let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
-            impactFeedbackgenerator.prepare()
-            impactFeedbackgenerator.impactOccurred()
-            // -------
+            addHaptic()
             performSegue(withIdentifier: "goToItems", sender: self)
         } else if tableView == preparedTableView {
-            // ------- Haptic вибрация
-            let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
-            impactFeedbackgenerator.prepare()
-            impactFeedbackgenerator.impactOccurred()
-            // -------
+            addHaptic()
             performSegue(withIdentifier: "goToAllPurchases", sender: self)
         }
     }
@@ -496,8 +506,10 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
                     destinationVC.title = category.title
                 }
             }
+        } else {
+            guard let destination = segue.destination as? LimitViewController else { return }
+            destination.delegate = self
         }
-        
     }
     
     
@@ -562,7 +574,7 @@ extension MainScreenViewController: UITextFieldDelegate {
         if textField == categoryText {
             colorViewText.text = categoryText.text ?? ""
             if colorViewText.text == "" {
-                colorViewText.text = "Category"
+                colorViewText.text = "Категория"
             }
             print(categoryText.text ?? "")
         }
@@ -570,5 +582,13 @@ extension MainScreenViewController: UITextFieldDelegate {
     }
     
     
+}
+
+extension MainScreenViewController: UpdateMainScreenViewController {
+    
+    func update() {
+        limitTodayLabel.text = "Лимит отсутствует"
+    }
+
 }
 

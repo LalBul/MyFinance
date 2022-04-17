@@ -9,6 +9,7 @@ import UIKit
 import SwipeCellKit
 import ChameleonFramework
 import RealmSwift
+import ViewAnimator
 
 class AllPurchasesController: UIViewController {
     
@@ -19,12 +20,13 @@ class AllPurchasesController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        loadItems()
+ 
         mainTableView.delegate = self
         mainTableView.dataSource = self
         mainTableView.backgroundColor = .clear
-        mainTableView.layer.cornerRadius = 20
-        mainTableView.rowHeight = 130
+        mainTableView.layer.cornerRadius = 15
+        mainTableView.rowHeight = 100
         mainTableView.showsHorizontalScrollIndicator = false
         mainTableView.showsVerticalScrollIndicator = false
         
@@ -33,12 +35,16 @@ class AllPurchasesController: UIViewController {
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationController?.navigationBar.isTranslucent = true
         
-        loadItems()
         self.tabBarController?.tabBar.isHidden = true
+        
+        let animation = AnimationType.from(direction: .top, offset: 100)
+        UIView.animate(views: mainTableView.visibleCells,
+                       animations: [animation])
+        
     }
     
     func loadItems() {
-        itemsArray = realm.objects(Item.self)
+        itemsArray = realm.objects(Item.self).sorted(byKeyPath: "date")
         mainTableView.reloadData()
     }
     
@@ -75,7 +81,7 @@ extension AllPurchasesController: UITableViewDelegate, UITableViewDataSource, Sw
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
         guard orientation == .right else { return nil }
-        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { swipeAction, indexPath in
+        let deleteAction = SwipeAction(style: .destructive, title: "Удалить") { swipeAction, indexPath in
             do {
                 try self.realm.write {
                     let newHistoryItem = HistoryItem()
@@ -92,6 +98,7 @@ extension AllPurchasesController: UITableViewDelegate, UITableViewDataSource, Sw
                 print("Delete error")
             }
         }
+        deleteAction.backgroundColor = HexColor("#9B3636")
         return [deleteAction]
     }
     
