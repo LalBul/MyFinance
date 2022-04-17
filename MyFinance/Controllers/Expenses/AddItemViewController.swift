@@ -76,7 +76,9 @@ class AddItemViewController: UIViewController {
                         newHistoryBudget.date = datePickerView.date
                         if wasteTextField.text != "" {
                             newHistoryBudget.operation = wasteTextField.text ?? "Трата"
-                        } 
+                        } else {
+                            newHistoryBudget.operation = "Трата"
+                        }
                         newHistoryBudget.getDateDay()
                         newHistoryBudget.getDateMonth()
                         newHistoryBudget.getDateYear()

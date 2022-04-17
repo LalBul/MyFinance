@@ -215,29 +215,51 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
     //MARK: - Add Category
     
     @IBOutlet weak var addCategoryView: UIView!
+    @IBOutlet weak var createButton: UIButton!
     @IBOutlet weak var colorView: UIView!
     @IBOutlet weak var sampleView: UIView!
     @IBOutlet weak var colorViewText: UILabel!
     @IBOutlet weak var categoryText: UITextField!
     @IBOutlet weak var colorButton: UIButton!
     @IBOutlet weak var viewAddAndColorButton: UIView!
+    @IBOutlet var currencyButtons: [UIButton]!
     
     @IBOutlet weak var addCategoryOutlet: UIBarButtonItem!
     @IBAction func addCategory(_ sender: UIBarButtonItem) {
-        // ------- Haptic вибрация
-        let impactFeedbackgenerator = UIImpactFeedbackGenerator(style: .light)
-        impactFeedbackgenerator.prepare()
-        impactFeedbackgenerator.impactOccurred()
-        // -------
+        addHaptic()
         addCategoryViewSettings()
+    }
+    
+    var selectedCurrency = ""
+    @IBAction func currency(_ sender: UIButton) {
+        addHaptic()
+        for i in currencyButtons {
+            i.backgroundColor = .white
+        }
+        sender.backgroundColor = .clear
+        if sender.tag == 1 {
+            selectedCurrency = "$"
+        } else if sender.tag == 2 {
+            selectedCurrency = "Є"
+        } else if sender.tag == 3 {
+            selectedCurrency = "₽"
+        }
+        createButton.isEnabled = true
     }
     
     fileprivate func addCategoryViewSettings() {
         addBlurEffect()
         
+        for i in currencyButtons {
+            i.layer.cornerRadius = i.frame.size.height / 2
+            i.backgroundColor = .white
+        }
+        
         tap = UITapGestureRecognizer(target: self, action: #selector(tapMainView))
         tap.isEnabled = true
         tap.delegate = self
+        
+        createButton.isEnabled = false
         
         sampleView.layer.cornerRadius = 10
         viewAddAndColorButton.layer.cornerRadius = 10
@@ -262,13 +284,12 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         addCategoryOutlet.isEnabled = false
         
         UIView.animate(withDuration: 0.2) {
-            self.addCategoryView.center.y = self.view.center.y - 100
+            self.addCategoryView.center.y = self.view.center.y 
             self.addCategoryView.transform = CGAffineTransform.identity
             self.categoryText.becomeFirstResponder()
             self.addCategoryView.alpha = 1
-        } completion: { _ in
-            
         }
+        
         self.tabBarController?.tabBar.isHidden = true
     }
     
@@ -301,15 +322,19 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         }
     }
     
+    @IBAction func closedCategoryView(_ sender: UIButton) {
+        backAnimate()
+    }
+    
     func backAnimate() {
         self.blurEffectView.removeFromSuperview()
         categoryText.text = ""
         UIView.animate(withDuration: 0.25) {
             self.addCategoryView.alpha = 0
-            self.addCategoryView.center.y = self.view.center.y + 150
+            self.addCategoryView.center.y = self.view.center.y + 300
             self.addCategoryView.transform = CGAffineTransform(scaleX: 0.05, y: 0.05)
-        } completion: { _ in
             self.addCategoryOutlet.isEnabled = true
+        } completion: { _ in
             self.addCategoryView.removeFromSuperview()
         }
         navigationController?.navigationBar.isHidden = false
