@@ -8,7 +8,6 @@
 import UIKit
 import SwiftUI
 import RealmSwift
-
 import Charts
 import SwipeCellKit
 import ColorSlider
@@ -17,6 +16,10 @@ import WatchConnectivity
 
 protocol UpdateMainScreenViewController {
     func update()
+}
+
+protocol SendData {
+    func sendData()
 }
 
 func addHaptic() {
@@ -56,6 +59,8 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         preparedTableView.layer.cornerRadius = 10
         preparedTableView.rowHeight = 60
         
+        chartView.highlightPerTapEnabled = false
+        
         mainTableView.delegate = self
         mainTableView.dataSource = self
         mainTableView.backgroundColor = UIColor.clear
@@ -92,9 +97,9 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
     func checkLimitLabel() {
         let limit = defaults.double(forKey: "Limit")
         if limit > 0 {
-            limitTodayLabel.text = "Ваш лимит: " + String(limit)
+            limitTodayLabel.text = "Ваш лимит: " + String(format:"%.2f", limit) + " ₽"
         } else if limit < 0 {
-            limitTodayLabel.text = "Вы в минусе на: " + String(limit)
+            limitTodayLabel.text = "Вы в минусе на: " + String(format:"%.2f", limit) + " ₽"
         } else {
             limitTodayLabel.text = "Лимит отсутствует"
         }
@@ -157,15 +162,25 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
     
     private func updateChartData() {
         
+        categoryArray = realm.objects(Category.self)
         var downloadDataEnty: [PieChartDataEntry] = []
         var colors: [UIColor] = []
-        categoryArray = realm.objects(Category.self)
+        var allAmount: Double = 0
         
         if let array = categoryArray {
             for i in array {
                 let newPieChartData = PieChartDataEntry()
                 if i.items.sum(ofProperty: "amount") > 0.0 {
-                    newPieChartData.value = i.items.sum(ofProperty: "amount")
+                    if i.currency == "$" {
+                        newPieChartData.value = i.items.sum(ofProperty: "amount") * 80
+                        allAmount += i.items.sum(ofProperty: "amount") * 80
+                    } else if i.currency == "Є" {
+                        newPieChartData.value = i.items.sum(ofProperty: "amount") * 90
+                        allAmount += i.items.sum(ofProperty: "amount") * 90
+                    } else if i.currency == "₽" {
+                        newPieChartData.value = i.items.sum(ofProperty: "amount")
+                        allAmount += i.items.sum(ofProperty: "amount")
+                    }
                 } else {continue}
                 if let color = HexColor(i.color) {
                     colors.append(color)
@@ -173,18 +188,8 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
                 downloadDataEnty.append(newPieChartData)
             }
         }
-        
-        var allAmount: Double = 0
-        if let array = categoryArray {
-            for i in array {
-                for j in i.items {
-                    allAmount += j.amount
-                }
-            }
-        }
-        
-//        let allAmount: Double = realm.objects(Item.self).sum(ofProperty: "amount")  // Сумма покупок за всё время
-        chartView.centerAttributedText = NSAttributedString(string: String(allAmount), attributes: [NSAttributedString.Key.foregroundColor : UIColor.white, NSAttributedString.Key.font : UIFont(name: "HelveticaNeue-Bold", size: 14)!])
+
+        chartView.centerAttributedText = NSAttributedString(string: String(format:"%.1f", allAmount) + " ₽", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white, NSAttributedString.Key.font : UIFont(name: "HelveticaNeue-Bold", size: 14)!])
         chartView.holeColor = .clear
         chartView.transparentCircleColor = .clear
         
@@ -244,6 +249,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         } else if sender.tag == 3 {
             selectedCurrency = "₽"
         }
+        createButton.alpha = 1
         createButton.isEnabled = true
     }
     
@@ -254,6 +260,8 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
             i.layer.cornerRadius = i.frame.size.height / 2
             i.backgroundColor = .white
         }
+        
+        createButton.alpha = 0.5
         
         tap = UITapGestureRecognizer(target: self, action: #selector(tapMainView))
         tap.isEnabled = true
@@ -286,8 +294,8 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         UIView.animate(withDuration: 0.2) {
             self.addCategoryView.center.y = self.view.center.y 
             self.addCategoryView.transform = CGAffineTransform.identity
-            self.categoryText.becomeFirstResponder()
             self.addCategoryView.alpha = 1
+            self.categoryText.becomeFirstResponder()
         }
         
         self.tabBarController?.tabBar.isHidden = true
@@ -307,6 +315,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
                 newCategory.title = category
             }
             newCategory.color = colorHex
+            newCategory.currency = selectedCurrency
             //
             do {
                 try realm.write {
@@ -440,6 +449,8 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
 //MARK: - Table View
 
 extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, SwipeTableViewCellDelegate {
+
+    
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 0
@@ -453,7 +464,7 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == mainTableView {
-            return categoryArray?.count ?? 2
+            return categoryArray?.count ?? 0
         } else if tableView == preparedTableView {
             preparedTableView.isScrollEnabled = false
             return 1
@@ -473,7 +484,7 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
                 cell.view.backgroundColor = HexColor(category.color)
                 cell.view.layer.cornerRadius = cell.view.frame.size.width/2
                 cell.categoryName.text = category.title
-                cell.amount.text = String(categorySum)
+                cell.amount.text = String(format:"%.2f", categorySum) + " \(category.currency)"
             }
             return cell
         } else if tableView == preparedTableView {
@@ -504,7 +515,14 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
                 }
             }
         }
+        
         let editAction = SwipeAction(style: .default, title: "Изменить") { swipeAction, indexPath in
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            guard let secondViewController = storyboard.instantiateViewController(identifier: "ChangeCategoryViewController") as? ChangeCategoryViewController else { return }
+            secondViewController.selectedCategory = self.categoryArray?[indexPath.row]
+            self.show(secondViewController, sender: nil)
+            
         }
         
         deleteAction.backgroundColor = HexColor("#9B3636")
@@ -536,8 +554,6 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
             destination.delegate = self
         }
     }
-    
-    
     
 }
 

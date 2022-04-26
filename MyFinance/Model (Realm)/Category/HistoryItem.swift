@@ -13,4 +13,5 @@ class HistoryItem: Object {
     @objc dynamic var category: String = ""
     @objc dynamic var date: Date?
     @objc dynamic var amount: Double = 0
+    //var parentCategory = LinkingObjects(fromType: Category.self, property: "history")
 }

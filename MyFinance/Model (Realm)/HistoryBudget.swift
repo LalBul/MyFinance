@@ -15,6 +15,8 @@ class HistoryBudget: Object {
     @objc dynamic var dateDay: String = ""
     @objc dynamic var dateMonth: String = ""
     @objc dynamic var dateYear: String = ""
+    @objc dynamic var currency: String = ""
+    var parentBudget = LinkingObjects(fromType: Budget.self, property: "history")
 
     func getDateDay() {
         let dateFormatter = DateFormatter()

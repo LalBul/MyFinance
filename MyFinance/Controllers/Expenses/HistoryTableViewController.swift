@@ -66,10 +66,10 @@ class HistoryTableViewController: UITableViewController, SwipeTableViewCellDeleg
             cell.date.text = formatter.string(from: historyArray.date!)
             cell.name.text = historyArray.title
             cell.amount.text = String(historyArray.amount)
+            cell.view.layer.cornerRadius = 15
+            cell.view.layer.masksToBounds = true
             cell.layer.borderWidth = CGFloat(3)
             cell.layer.borderColor = view.backgroundColor?.cgColor
-            cell.view.layer.cornerRadius = 15
-            cell.view.layer.masksToBounds = true;
         }
         return cell
     }

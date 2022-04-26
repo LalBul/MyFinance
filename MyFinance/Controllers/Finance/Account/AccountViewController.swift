@@ -50,13 +50,21 @@ class AccountViewController: UIViewController, UpdateDataViewController {
     }
     
     @IBAction func deleteAccount(_ sender: UIBarButtonItem) {
-        do {
-            try realm.write {
-                realm.delete(selectedAccount!)
-                navigationController?.popToRootViewController(animated: true)
-                
-            }
-        } catch {print(error)}
+        let alert = UIAlertController(title: "Удалить счёт?", message: "" ,         preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Назад", style: UIAlertAction.Style.default, handler: { _ in
+                    //Cancel Action
+        }))
+        alert.addAction(UIAlertAction(title: "Удалить", style: UIAlertAction.Style.default, handler: {(_: UIAlertAction!) in
+            do {
+                try self.realm.write {
+                    self.realm.delete(self.selectedAccount!)
+                    self.navigationController?.popToRootViewController(animated: true)
+                }
+            } catch {print(error)}
+        }))
+        self.present(alert, animated: true, completion: nil)
+        
+        
     }
     
     @IBAction func addCashToAccount(_ sender: UIBarButtonItem) {

@@ -11,6 +11,7 @@ import RealmSwift
 import ChameleonFramework
 import UPCarouselFlowLayout
 import SwiftUI
+import TinyConstraints
 
 protocol UpdateDataViewController {
     func update()
@@ -27,10 +28,12 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
     @IBOutlet weak var mainTableView: UITableView!
     @IBOutlet weak var accountCollectionView: UICollectionView!
     
-    var budget: Results<Budget>?
-    var accounts: Results<Account>?
+  
     var realm = try! Realm()
+    var accounts: Results<Account>?
+    var budget: Results<Budget>?
     var historyBudget: Results<HistoryBudget>?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,10 +44,13 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         accountCollectionView.dataSource = self
         accountCollectionView.delegate = self
         
+        
+        
+        mainTableView.separatorInset = UIEdgeInsets.init(top: 0, left: 0, bottom: 0, right: 0)
         mainTableView.dataSource = self
         mainTableView.delegate = self
         mainTableView.showsVerticalScrollIndicator = false
-            
+        
         financeView.layer.cornerRadius = 20
         
         let layout = UPCarouselFlowLayout()
@@ -110,6 +116,7 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         }
         accountCollectionView.reloadData()
         mainTableView.reloadData()
+        
     }
     
     @IBAction func addMoneyToBudget(_ sender: UIBarButtonItem) {
@@ -123,26 +130,8 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         }
     }
     
-    @IBAction func segmentedControl(_ sender: UISegmentedControl) {
-        let dateFormatter = DateFormatter()
-        if sender.selectedSegmentIndex == 0 {
-            historyBudget = realm.objects(HistoryBudget.self).sorted(byKeyPath: "date", ascending: false)
-            mainTableView.reloadData()
-        } else if sender.selectedSegmentIndex == 1 {
-            dateFormatter.dateStyle = .medium
-            dateFormatter.timeStyle = .none
-            historyBudget = realm.objects(HistoryBudget.self).filter("dateDay == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
-            mainTableView.reloadData()
-        } else if sender.selectedSegmentIndex == 2 {
-            dateFormatter.dateFormat = "MM-yyyy"
-            historyBudget = realm.objects(HistoryBudget.self).filter("dateMonth == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
-            mainTableView.reloadData()
-        } else if sender.selectedSegmentIndex == 3 {
-            dateFormatter.dateFormat = "yyyy"
-            historyBudget = realm.objects(HistoryBudget.self).filter("dateYear == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
-            mainTableView.reloadData()
-        }
-        
+    @IBAction func toReport(_ sender: UIBarButtonItem) {
+        performSegue(withIdentifier: "toReport", sender: self)
     }
     
 }
@@ -160,13 +149,13 @@ extension MainFinanceViewController: UITableViewDelegate, UITableViewDataSource 
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .short
         dateFormatter.locale = Locale(identifier: "ru_RU")
-        if let history = historyBudget?[indexPath.row] {
+         if let history = historyBudget?[indexPath.row] {
             if history.sum < 0 {
                 cell.sum.textColor = .white
-                cell.sum.text = String(history.sum)
+                cell.sum.text = String(format:"%.2f", history.sum) + " \(history.currency)"
             } else {
                 cell.sum.textColor = HexColor("33A64B")
-                cell.sum.text = "+" + String(history.sum)
+                cell.sum.text = "+" + String(format:"%.2f", history.sum) + " \(history.currency)"
             }
             cell.operation.text = history.operation
             cell.date.text = dateFormatter.string(from: history.date)
@@ -177,6 +166,59 @@ extension MainFinanceViewController: UITableViewDelegate, UITableViewDataSource 
         }
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let header = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 30))
+        header.backgroundColor = .clear
+        let items = ["Всё", "День", "Месяц", "Год"]
+        let segmentedControl = UISegmentedControl(items: items)
+        segmentedControl.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 30)
+        segmentedControl.selectedSegmentTintColor = HexColor("295A9B")
+        segmentedControl.addTarget(self, action: #selector(segmentAction(_:)), for: .valueChanged)
+        segmentedControl.backgroundColor = HexColor("1C3459")
+        segmentedControl.center = header.center
+        header.addSubview(segmentedControl)
+        
+        segmentedControl.edgesToSuperview(excluding: .bottom, insets: UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15))
+        segmentedControl.height(30)
+
+        return header
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 30
+    }
+    
+    @objc func segmentAction(_ segmentedControl: UISegmentedControl) {
+        addHaptic()
+        let dateFormatter = DateFormatter()
+        switch (segmentedControl.selectedSegmentIndex) {
+                case 0:
+            historyBudget = realm.objects(HistoryBudget.self).sorted(byKeyPath: "date", ascending: false)
+            mainTableView.reloadData()
+            break
+                case 1:
+            dateFormatter.dateStyle = .medium
+            dateFormatter.timeStyle = .none
+            historyBudget = realm.objects(HistoryBudget.self).filter("dateDay == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
+            mainTableView.reloadData()
+            break
+                case 2:
+            dateFormatter.dateFormat = "MM-yyyy"
+            historyBudget = realm.objects(HistoryBudget.self).filter("dateMonth == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
+            mainTableView.reloadData()
+            break
+                case 3:
+            dateFormatter.dateFormat = "yyyy"
+            historyBudget = realm.objects(HistoryBudget.self).filter("dateYear == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
+            mainTableView.reloadData()
+            break
+                default:
+            break
+        }
+        
+    }
+
 
 }
 

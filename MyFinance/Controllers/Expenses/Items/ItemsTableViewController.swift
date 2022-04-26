@@ -77,7 +77,9 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
     
     func loadItems() {
         items = selectedCategory?.items.sorted(byKeyPath: "date", ascending: true)
-        tableView.reloadData()
+        UIView.animate(withDuration: 0.35) {
+            self.tableView.reloadData()
+        }
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -92,6 +94,11 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
     //MARK: - Table View
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if items?.count == 0 {
+            tableView.setEmptyMessage("Покупок пока нет")
+        } else {
+            tableView.restore()
+        }
         return items?.count ?? 1
     }
     
@@ -100,9 +107,9 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         cell.delegate = self
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
-        if let item = items?[indexPath.row] {
+        if let item = items?[indexPath.row], let category = selectedCategory {
             cell.buyName.text = item.title
-            cell.buyPrice.text = String(item.amount)
+            cell.buyPrice.text = String(format:"%.2f", item.amount) + " \(category.currency)"
             cell.buyDate.text = formatter.string(from: item.date ?? Date())
             cell.layer.borderWidth = CGFloat(3)
             cell.layer.borderColor = view.backgroundColor?.cgColor
@@ -137,6 +144,24 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         deleteAction.backgroundColor = HexColor("#9B3636")
         return [deleteAction]
     }
+    
+//    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+//        let header = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 30))
+//        header.backgroundColor = .clear
+//        let items = ["Всё", "День", "Месяц", "Год"]
+//        let segmentedControl = UISegmentedControl(items: items)
+//        segmentedControl.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 30)
+//        segmentedControl.selectedSegmentTintColor = HexColor("295A9B")
+//        segmentedControl.backgroundColor = HexColor("1C3459")
+//        segmentedControl.center = header.center
+//        header.addSubview(segmentedControl)
+//        
+//        segmentedControl.edgesToSuperview(excluding: .bottom, insets: UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15))
+//        segmentedControl.height(30)
+//
+//        return header
+//    }
+
     
 }
 

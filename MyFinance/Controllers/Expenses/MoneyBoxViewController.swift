@@ -57,20 +57,22 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
     private var blurEffectView = UIVisualEffectView()
     
     @IBOutlet var addMoneyBoxView: UIView!
+    @IBOutlet weak var viewCreateButton: UIView!
     @IBOutlet weak var nameMoneyBox: UITextField!
     @IBOutlet weak var purpose: UITextField!
     @IBOutlet weak var addMoneyBoxButton: UIBarButtonItem!
     @IBAction func addMoneyBox(_ sender: UIBarButtonItem) {
         
+        viewCreateButton.layer.cornerRadius = 10
+        
         tap = UITapGestureRecognizer(target: self, action: #selector(tapBack))
         tap.isEnabled = true
         tap.delegate = self
         
+        addMoneyBoxView.center.y = view.center.x + 100
+        addMoneyBoxView.center.x = view.center.x
+        addMoneyBoxView.transform = CGAffineTransform(scaleX: 0.05, y: 0.1)
         addMoneyBoxView.layer.cornerRadius = 10
-        addMoneyBoxView.center = view.center
-        addMoneyBoxView.center.y -= 500
-        addMoneyBoxView.center.x += 150
-        addMoneyBoxView.transform = CGAffineTransform(scaleX: 0.05, y: 0.05)
         
         nameMoneyBox.layer.cornerRadius = 10
         
@@ -87,9 +89,9 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
         blurEffectView.addGestureRecognizer(tap)
         
         UIView.animate(withDuration: 0.25) {
-            self.addMoneyBoxView.center.y += 500
-            self.addMoneyBoxView.center.x = self.view.center.x
+            self.addMoneyBoxView.center.y = self.view.center.y
             self.addMoneyBoxView.transform = CGAffineTransform.identity
+            self.addMoneyBoxView.alpha = 1
             self.addMoneyBoxButton.isEnabled = false
         }
         
@@ -104,14 +106,20 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
         blurEffectView.removeFromSuperview()
         tap.isEnabled = false
         UIView.animate(withDuration: 0.2) {
-            self.addMoneyBoxView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-            self.addMoneyBoxView.center.y += 500
+            self.addMoneyBoxView.alpha = 0
+            self.addMoneyBoxView.center.y = self.view.center.y + 300
+            self.addMoneyBoxView.transform = CGAffineTransform(scaleX: 0.05, y: 0.05)
             self.addMoneyBoxButton.isEnabled = true
+            
         } completion: { _ in
             self.addMoneyBoxView.removeFromSuperview()
         }
     }
     
+    @IBAction func backButton(_ sender: UIButton) {
+        back()
+    }
+
     @IBAction func addMoneyBoxButton(_ sender: UIButton) {
         let numberFormatter = NumberFormatter()
         numberFormatter.decimalSeparator = ","
@@ -148,7 +156,17 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
 extension MoneyBoxViewController: UICollectionViewDelegate, UICollectionViewDataSource  {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return moneyBoxes?.count ?? 0
+        if let moneyBox = moneyBoxes?.count {
+            if moneyBox > 0 {
+                self.moneyBoxCollectionView.restore()
+                return moneyBox
+            } else {
+                self.moneyBoxCollectionView.setEmptyMessage("Копилок пока нет")
+                return 0
+            }
+        } else {
+            return 0
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -167,7 +185,7 @@ extension MoneyBoxViewController: UICollectionViewDelegate, UICollectionViewData
                 
                 configureCell.purpose.text = String(moneyBox.purpose)
                 configureCell.name.text = moneyBox.title
-                configureCell.collected.text = String(moneyBox.collected) + " (" + String(moneyBox.collected / moneyBox.purpose * 100) + " %)" 
+                configureCell.collected.text = String(format:"%.2f", moneyBox.collected) + " (" + String(format:"%.2f", moneyBox.collected / moneyBox.purpose * 100) + " %)" 
                 
                 configureCell.layer.borderWidth = CGFloat(3)
                 configureCell.layer.borderColor = view.backgroundColor?.cgColor
@@ -224,13 +242,21 @@ extension MoneyBoxViewController: UITextFieldDelegate {
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField == purpose {
-            let allowedCharacters = CharacterSet(charactersIn:",0123456789")
-            let characterSet = CharacterSet(charactersIn: string)
-            return allowedCharacters.isSuperset(of: characterSet)
+            if string == "," {
+                    let countdots = textField.text!.components(separatedBy: ",").count - 1
+                    if countdots == 0 {
+                        return true
+                    } else {
+                        if countdots > 0 && string == "," {
+                            return false
+                        } else {
+                            return true
+                        }
+                    }
+                }
+                return true
         }
         return true
     }
-    
-    
     
 }

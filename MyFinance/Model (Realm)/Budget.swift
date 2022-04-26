@@ -10,4 +10,5 @@ import RealmSwift
 
 class Budget: Object {
     @objc dynamic var collected: Double = 0
+    let history = List<HistoryBudget>()
 }

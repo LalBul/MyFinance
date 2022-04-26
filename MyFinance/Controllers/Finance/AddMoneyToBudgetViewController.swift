@@ -18,6 +18,7 @@ class AddMoneyToBudgetViewController: UIViewController {
     
     private var pointBool = true
     var realm = try! Realm()
+    var budget: Results<Budget>?
     weak var delegate: MainFinanceViewController?
     
     override func viewDidLoad() {
@@ -27,6 +28,11 @@ class AddMoneyToBudgetViewController: UIViewController {
             i.layer.cornerRadius = i.frame.size.height / 2
         }
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadItems()
     }
     
     @IBAction func buttons(_ sender: UIButton) {
@@ -52,6 +58,10 @@ class AddMoneyToBudgetViewController: UIViewController {
         
     }
     
+    func loadItems() {
+        budget = realm.objects(Budget.self)
+    }
+    
     @IBAction func deleteSymbolButton(_ sender: UIButton) {
         addHaptic()
         deleteLastSymbolLabel()
@@ -69,15 +79,14 @@ class AddMoneyToBudgetViewController: UIViewController {
                 newHistoryBudget.operation = "Доход"
             }
             newHistoryBudget.date = Date()
+            newHistoryBudget.currency = "₽"
             newHistoryBudget.getDateDay()
             newHistoryBudget.getDateMonth()
             newHistoryBudget.getDateYear()
             do {
                 try realm.write({
-                    let budget: Results<Budget>?
-                    budget = realm.objects(Budget.self)
                     budget?[0].collected += Double(sumLabel.text!)!
-                    realm.add(newHistoryBudget)
+                    budget?[0].history.append(newHistoryBudget)
                     delegate?.update()
                     dismiss(animated: true)
                 })
