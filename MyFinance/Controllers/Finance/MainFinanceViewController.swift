@@ -43,10 +43,8 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         accountCollectionView.layer.cornerRadius = 10
         accountCollectionView.dataSource = self
         accountCollectionView.delegate = self
-        
-        
-        
-        mainTableView.separatorInset = UIEdgeInsets.init(top: 0, left: 0, bottom: 0, right: 0)
+     
+        mainTableView.contentInset = UIEdgeInsets.init(top: 0, left: 0, bottom: 0, right: 0)
         mainTableView.dataSource = self
         mainTableView.delegate = self
         mainTableView.showsVerticalScrollIndicator = false
@@ -174,12 +172,15 @@ extension MainFinanceViewController: UITableViewDelegate, UITableViewDataSource 
         let segmentedControl = UISegmentedControl(items: items)
         segmentedControl.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 30)
         segmentedControl.selectedSegmentTintColor = HexColor("295A9B")
-        segmentedControl.addTarget(self, action: #selector(segmentAction(_:)), for: .valueChanged)
+        segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(_:)), for: .valueChanged)
         segmentedControl.backgroundColor = HexColor("1C3459")
         segmentedControl.center = header.center
         header.addSubview(segmentedControl)
         
-        segmentedControl.edgesToSuperview(excluding: .bottom, insets: UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15))
+        
+        
+        
+        segmentedControl.edgesToSuperview(excluding: .bottom, insets: UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15), usingSafeArea: true)
         segmentedControl.height(30)
 
         return header
@@ -189,33 +190,33 @@ extension MainFinanceViewController: UITableViewDelegate, UITableViewDataSource 
         return 30
     }
     
-    @objc func segmentAction(_ segmentedControl: UISegmentedControl) {
+    @objc func segmentedControlValueChanged(_ segmentedControl: UISegmentedControl) {
         addHaptic()
         let dateFormatter = DateFormatter()
         switch (segmentedControl.selectedSegmentIndex) {
                 case 0:
             historyBudget = realm.objects(HistoryBudget.self).sorted(byKeyPath: "date", ascending: false)
-            mainTableView.reloadData()
             break
                 case 1:
             dateFormatter.dateStyle = .medium
             dateFormatter.timeStyle = .none
             historyBudget = realm.objects(HistoryBudget.self).filter("dateDay == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
-            mainTableView.reloadData()
             break
                 case 2:
             dateFormatter.dateFormat = "MM-yyyy"
             historyBudget = realm.objects(HistoryBudget.self).filter("dateMonth == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
-            mainTableView.reloadData()
             break
                 case 3:
             dateFormatter.dateFormat = "yyyy"
             historyBudget = realm.objects(HistoryBudget.self).filter("dateYear == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
-            mainTableView.reloadData()
             break
                 default:
             break
         }
+        UIView.transition(with: mainTableView,
+                          duration: 0.35,
+                          options: .transitionCrossDissolve,
+                          animations: { self.mainTableView.reloadData() })
         
     }
 

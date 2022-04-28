@@ -10,21 +10,29 @@ import SwiftUI
 import RealmSwift
 
 protocol UpdateAccount {
-    func update(account: Account)
+    func updateAccount(account: Account)
+    func updateBudget()
     func closedView()
 }
 
 class AddItemViewController: UIViewController, UpdateAccount {
     
+    func updateBudget() {
+        selectedAccount = nil
+        myBudget = realm.objects(Budget.self)
+        selectedAccountOrBudgetLabel.text = "Оплата с основного бюджета"
+    }
+    
     func closedView() {
-        if selectedAccount == nil {
+        if selectedAccount == nil && myBudget == nil {
             switchAccount.isOn = false
         }
     }
     
-    func update(account: Account) {
+    func updateAccount(account: Account) {
+        myBudget = nil
         selectedAccount = account
-        selectedAccountLabel.text = "Оплата со счёта: " + (selectedAccount?.title ?? "") + " " + (selectedAccount?.currency ?? "")
+        selectedAccountOrBudgetLabel.text = "Оплата со счёта: " + (selectedAccount?.title ?? "") + " " + (selectedAccount?.currency ?? "")
     }
     
     @IBOutlet weak var wasteTextField: UITextField!
@@ -32,7 +40,7 @@ class AddItemViewController: UIViewController, UpdateAccount {
     @IBOutlet weak var datePickerView: UIDatePicker!
     @IBOutlet weak var addItemOutlet: UIButton!
     @IBOutlet weak var categoryLabel: UILabel!
-    @IBOutlet weak var selectedAccountLabel: UILabel!
+    @IBOutlet weak var selectedAccountOrBudgetLabel: UILabel!
     
     let realm = try! Realm()
     let defaults = UserDefaults.standard
@@ -69,8 +77,9 @@ class AddItemViewController: UIViewController, UpdateAccount {
         if sender.isOn == true {
             performSegue(withIdentifier: "goToAccounts", sender: self)
         } else if sender.isOn == false {
+            myBudget = nil
             selectedAccount = nil
-            selectedAccountLabel.text = "Оплата со счёта: "
+            selectedAccountOrBudgetLabel.text = "Оплата со счёта или бюджета: "
         }
     }
     
@@ -99,40 +108,41 @@ class AddItemViewController: UIViewController, UpdateAccount {
             }
             do {
                 try realm.write {
-//                    if switchBudget.isOn {
-//                        myBudget = realm.objects(Budget.self)
-//                        if selectedCategory?.currency == "$" {
-//                            myBudget?[0].collected -= amountInDouble * 80
-//                        } else if selectedCategory?.currency == "Є" {
-//                            myBudget?[0].collected -= amountInDouble * 90
-//                        } else if selectedCategory?.currency == "₽" {
-//                            myBudget?[0].collected -= amountInDouble
-//                        }
-//                        let newHistoryBudget = HistoryBudget()
-//                        newHistoryBudget.sum = -amountInDouble
-//                        newHistoryBudget.currency = selectedCategory?.currency ?? ""
-//                        newHistoryBudget.date = datePickerView.date
-//                        if wasteTextField.text != "" {
-//                            newHistoryBudget.operation = wasteTextField.text ?? "Трата"
-//                        } else {
-//                            newHistoryBudget.operation = "Трата"
-//                        }
-//                        newHistoryBudget.getDateDay()
-//                        newHistoryBudget.getDateMonth()
-//                        newHistoryBudget.getDateYear()
-//                        myBudget?[0].history.append(newHistoryBudget)
-//                    }
+
                     if switchAccount.isOn {
-                        let newAccountHistory = AccountHistory()
-                        newAccountHistory.sum = -amountInDouble
-                        if wasteTextField.text != "" {
-                            newAccountHistory.operation = wasteTextField.text ?? "Трата"
-                        } else {
-                            newAccountHistory.operation = "Трата"
+                        if selectedAccount != nil {
+                            let newAccountHistory = AccountHistory()
+                            newAccountHistory.sum = -amountInDouble
+                            if wasteTextField.text != "" {
+                                newAccountHistory.operation = wasteTextField.text ?? "Трата"
+                            } else {
+                                newAccountHistory.operation = "Трата"
+                            }
+                            newAccountHistory.date = datePickerView.date
+                            selectedAccount?.history.append(newAccountHistory)
+                            selectedAccount?.collected -= amountInDouble
+                        } else if myBudget != nil {
+                                                    if selectedCategory?.currency == "$" {
+                                                        myBudget?[0].collected -= amountInDouble * 80
+                                                    } else if selectedCategory?.currency == "Є" {
+                                                        myBudget?[0].collected -= amountInDouble * 90
+                                                    } else if selectedCategory?.currency == "₽" {
+                                                        myBudget?[0].collected -= amountInDouble
+                                                    }
+                                                    let newHistoryBudget = HistoryBudget()
+                                                    newHistoryBudget.sum = -amountInDouble
+                                                    newHistoryBudget.currency = selectedCategory?.currency ?? ""
+                                                    newHistoryBudget.date = datePickerView.date
+                                                    if wasteTextField.text != "" {
+                                                        newHistoryBudget.operation = wasteTextField.text ?? "Трата"
+                                                    } else {
+                                                        newHistoryBudget.operation = "Трата"
+                                                    }
+                                                    newHistoryBudget.getDateDay()
+                                                    newHistoryBudget.getDateMonth()
+                                                    newHistoryBudget.getDateYear()
+                                                    myBudget?[0].history.append(newHistoryBudget)
                         }
-                        newAccountHistory.date = datePickerView.date
-                        selectedAccount?.history.append(newAccountHistory)
-                        selectedAccount?.collected -= amountInDouble
                     }
                     selectedCategory?.items.append(newItem)
                     if defaults.double(forKey: "Limit") > 0 || defaults.double(forKey: "Limit") < 0  {
