@@ -19,6 +19,7 @@
 		4C0F9955263DA9B100AA8749 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4C0F9953263DA9B100AA8749 /* LaunchScreen.storyboard */; };
 		4C0F995E263DAB5900AA8749 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0F995D263DAB5900AA8749 /* Category.swift */; };
 		4C0F9960263DAC0400AA8749 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0F995F263DAC0400AA8749 /* Item.swift */; };
+		4C195482281ADD520072FC8D /* KeyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C195481281ADD520072FC8D /* KeyCell.swift */; };
 		4C1BC6DD274836E7009D8094 /* MoneyBoxViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1BC6DC274836E7009D8094 /* MoneyBoxViewController.swift */; };
 		4C1BC6E027483916009D8094 /* MoneyBoxCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1BC6DF27483916009D8094 /* MoneyBoxCell.swift */; };
 		4C306ECF2690FF8D00B22D49 /* HistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C306ECE2690FF8D00B22D49 /* HistoryCell.swift */; };
@@ -143,6 +144,7 @@
 		4C0F9956263DA9B100AA8749 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4C0F995D263DAB5900AA8749 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		4C0F995F263DAC0400AA8749 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
+		4C195481281ADD520072FC8D /* KeyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCell.swift; sourceTree = "<group>"; };
 		4C1BC6DC274836E7009D8094 /* MoneyBoxViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoneyBoxViewController.swift; sourceTree = "<group>"; };
 		4C1BC6DF27483916009D8094 /* MoneyBoxCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoneyBoxCell.swift; sourceTree = "<group>"; };
 		4C306ECE2690FF8D00B22D49 /* HistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryCell.swift; sourceTree = "<group>"; };
@@ -304,6 +306,7 @@
 			children = (
 				4C1BC6DF27483916009D8094 /* MoneyBoxCell.swift */,
 				4C0F0C42280796C2001960E3 /* AccountCell.swift */,
+				4C195481281ADD520072FC8D /* KeyCell.swift */,
 			);
 			path = CollectionCell;
 			sourceTree = "<group>";
@@ -714,6 +717,7 @@
 				4CAFA1392812F70100F23DD8 /* ReportViewController.swift in Sources */,
 				4C7086C728148EB500080161 /* SelectAccountTableViewController.swift in Sources */,
 				4C0F9949263DA9B000AA8749 /* AppDelegate.swift in Sources */,
+				4C195482281ADD520072FC8D /* KeyCell.swift in Sources */,
 				4C0F994B263DA9B000AA8749 /* SceneDelegate.swift in Sources */,
 				4C0F995E263DAB5900AA8749 /* Category.swift in Sources */,
 			);
@@ -917,7 +921,6 @@
 				DEVELOPMENT_TEAM = A39ARW5Y9W;
 				INFOPLIST_FILE = MyFinance/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 13.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -925,9 +928,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirSN.MyFinance;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -944,7 +947,6 @@
 				DEVELOPMENT_TEAM = A39ARW5Y9W;
 				INFOPLIST_FILE = MyFinance/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 13.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -952,9 +954,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirSN.MyFinance;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -976,7 +978,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirSN.MyFinance.MyFinanceWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1000,7 +1002,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirSN.MyFinance.MyFinanceWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

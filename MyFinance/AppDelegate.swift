@@ -9,6 +9,7 @@ import UIKit
 import IQKeyboardManager
 import WatchConnectivity
 import Firebase
+import SwiftUI
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {

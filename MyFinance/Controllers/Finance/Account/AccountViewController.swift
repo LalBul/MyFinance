@@ -105,10 +105,10 @@ extension AccountViewController: UITableViewDelegate, UITableViewDataSource {
          if let accountHistory = accountHistories?[indexPath.row] {
              if accountHistory.sum < 0 {
                  cell.sum.textColor = .white
-                 cell.sum.text = String(accountHistory.sum)
+                 cell.sum.text = String(accountHistory.sum) + " \(selectedAccount?.currency ?? "")"
              } else {
                  cell.sum.textColor = HexColor("33A64B")
-                 cell.sum.text = "+" + String(accountHistory.sum)
+                 cell.sum.text = "+" + String(accountHistory.sum) + " \(selectedAccount?.currency ?? "")"
              }
              cell.operation.text = accountHistory.operation
              cell.date.text = dateFormatter.string(from: accountHistory.date)

@@ -12,8 +12,7 @@ class ChangeCategoryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-      
-        print(selectedCategory)
+     
     }
     
     var selectedCategory: Category?

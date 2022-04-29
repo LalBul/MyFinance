@@ -58,6 +58,7 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         
         let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         
+        
         navigationController?.navigationBar.titleTextAttributes = textAttributes
     }
     
