@@ -49,7 +49,9 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         mainTableView.delegate = self
         mainTableView.showsVerticalScrollIndicator = false
         
+        financeView.clipsToBounds = true
         financeView.layer.cornerRadius = 20
+        financeView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         
         let layout = UPCarouselFlowLayout()
         layout.itemSize = CGSize(width: 160, height: 80)
@@ -58,12 +60,12 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         
         let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         
-        
         navigationController?.navigationBar.titleTextAttributes = textAttributes
     }
     
     override func viewWillAppear(_ animated: Bool) {
         firstAddBudget()
+        score = 0
     }
     
     func setupLabelTap() {
@@ -130,6 +132,7 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
     }
     
     @IBAction func toReport(_ sender: UIBarButtonItem) {
+        addHaptic()
         performSegue(withIdentifier: "toReport", sender: self)
     }
     

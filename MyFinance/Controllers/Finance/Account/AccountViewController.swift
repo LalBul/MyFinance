@@ -34,6 +34,7 @@ class AccountViewController: UIViewController, UpdateDataViewController {
         mainTableView.delegate = self
         mainTableView.showsVerticalScrollIndicator = false
         mainTableView.allowsSelection = false
+        mainTableView.separatorStyle = .none
     }
     
     override func viewWillAppear(_ animated: Bool) {

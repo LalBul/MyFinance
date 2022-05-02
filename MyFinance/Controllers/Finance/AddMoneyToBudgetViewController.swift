@@ -100,6 +100,7 @@ extension AddMoneyToBudgetViewController:  UICollectionViewDataSource, UICollect
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! KeyCell
         cell.digitsLabel.text = numbers[indexPath.item]
+        cell.digitsLabel.tintColor = .white
         cell.backgroundColor = HexColor("19365D")
         return cell
     }

@@ -5,7 +5,6 @@
 //  Created by Вова Сербин on 26.04.2022.
 //
 
-import Foundation
 import UIKit
 
 class SelectAccountCell: UITableViewCell {

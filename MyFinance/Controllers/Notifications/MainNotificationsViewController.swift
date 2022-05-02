@@ -29,6 +29,7 @@ class MainNotificationsViewController: UIViewController {
         mainTableView.backgroundColor = UIColor.clear
         mainTableView.layer.cornerRadius = 10
         mainTableView.rowHeight = 70
+        mainTableView.separatorStyle = .none
         
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.navigationBar.barTintColor = view.backgroundColor
