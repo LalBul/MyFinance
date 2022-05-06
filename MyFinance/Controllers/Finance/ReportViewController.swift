@@ -34,10 +34,17 @@ class ReportViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        updateData()
+        
+        segmentedControl.selectedSegmentIndex = 0
+        segmentedControl.sendActions(for: UIControl.Event.valueChanged)
+        segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.gray], for:.normal)
+        segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for:.selected)
         
         reportChartView.highlightPerTapEnabled = false
         reportChartView.animate(xAxisDuration: 1, yAxisDuration: 1)
+        
+        plusProgress.transform = plusProgress.transform.scaledBy(x: 1, y: 2)
+        minusProgress.transform = minusProgress.transform.scaledBy(x: 1, y: 2)
         
         categoryTableView.delegate = self
         categoryTableView.dataSource = self
@@ -47,40 +54,33 @@ class ReportViewController: UIViewController {
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        updateData()
-        
-        
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         categoryTableView.removeObserver(self, forKeyPath: "contentSize")
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?){
-            if(keyPath == "contentSize"){
-                if let tbl = object as? UITableView
+        if(keyPath == "contentSize"){
+            if let tbl = object as? UITableView
+            {
+                if tbl == self.categoryTableView
                 {
-                    if tbl == self.categoryTableView
-                    {
-                        if let newvalue = change?[.newKey] {
-                            let newsize  = newvalue as! CGSize
-                            self.categoryTableViewHeight.constant = newsize.height
-                        }
+                    if let newvalue = change?[.newKey] {
+                        let newsize  = newvalue as! CGSize
+                        self.categoryTableViewHeight.constant = newsize.height
                     }
                 }
             }
         }
+    }
     
     func updateData() {
-      
+        
         categoryArray = realm.objects(Category.self)
         var downloadDataEnty: [PieChartDataEntry] = []
         let colors: [UIColor] = [HexColor("2f9626")!, HexColor("962626")!]
-    
+        
         let newPieChartDataPlus = PieChartDataEntry()
         let newPieChartDataMinus = PieChartDataEntry()
         
@@ -105,22 +105,27 @@ class ReportViewController: UIViewController {
                 }
             }
         }
-        
-        plusProgress.progress = Float(newPieChartDataPlus.value / (newPieChartDataPlus.value + newPieChartDataMinus.value))
-        minusProgress.progress = Float(newPieChartDataMinus.value / (newPieChartDataPlus.value + newPieChartDataMinus.value))
+
+        if newPieChartDataPlus.value == 0 && newPieChartDataMinus.value == 0 {
+            plusProgress.progress = 0
+            minusProgress.progress = 0
+        } else {
+            plusProgress.progress = Float(newPieChartDataPlus.value / (newPieChartDataPlus.value + newPieChartDataMinus.value))
+            minusProgress.progress = Float(newPieChartDataMinus.value / (newPieChartDataPlus.value + newPieChartDataMinus.value))
+        }
         
         allHistorysSum = Double(newPieChartDataMinus.value)
         
-        plusLabel.text = String(newPieChartDataPlus.value) +  " — " + String(format: "%.2f", plusProgress.progress * 100) + " %"
-        minusLabel.text = String(-newPieChartDataMinus.value) +  " — " + String(format: "%.2f", minusProgress.progress * 100) + " %"
-   
+        plusLabel.text = String(newPieChartDataPlus.value) + " ₽" + " — " + String(format: "%.2f", plusProgress.progress * 100) + " %"
+        minusLabel.text = String(-newPieChartDataMinus.value) + " ₽" + " — " + String(format: "%.2f", minusProgress.progress * 100) + " %"
+        
         newPieChartDataPlus.label = "Доходы"
         newPieChartDataMinus.label = "Расходы"
-     
-        reportChartView.drawEntryLabelsEnabled = false
-
+        
         downloadDataEnty = [newPieChartDataPlus, newPieChartDataMinus]
-
+        
+        reportChartView.drawEntryLabelsEnabled = false
+        reportChartView.legend.textColor = .white
         reportChartView.holeColor = .clear
         reportChartView.transparentCircleColor = .clear
         
@@ -139,31 +144,28 @@ class ReportViewController: UIViewController {
         addHaptic()
         let dateFormatter = DateFormatter()
         switch (segmentedControl.selectedSegmentIndex) {
-                case 0:
-            historyBudget = realm.objects(HistoryBudget.self).sorted(byKeyPath: "date", ascending: false)
-            updateData()
-            break
-                case 1:
+        case 0:
             dateFormatter.dateFormat = "MM-yyyy"
             historyBudget = realm.objects(HistoryBudget.self).filter("dateMonth == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
             updateData()
             break
-                case 2:
+        case 1:
             dateFormatter.dateFormat = "yyyy"
             historyBudget = realm.objects(HistoryBudget.self).filter("dateYear == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
             updateData()
             break
-                default:
+        default:
             break
         }
         reportChartView.animate(xAxisDuration: 1, yAxisDuration: 1)
+        categoryTableView.reloadData()
     }
     
-   
+    
 }
 
 extension ReportViewController: UITableViewDelegate, UITableViewDataSource {
-
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return categoryArray?.count ?? 0
     }
@@ -172,12 +174,28 @@ extension ReportViewController: UITableViewDelegate, UITableViewDataSource {
         if tableView == categoryTableView {
             let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! ReportCategoryCell
             if let category = categoryArray?[indexPath.row] {
-                let categorySum: Double = category.items.sum(ofProperty: "amount")
+                let dateFormatter = DateFormatter()
+                var categorySum: Double = category.items.sum(ofProperty: "amount")
+                if segmentedControl.selectedSegmentIndex == 0 {
+                    dateFormatter.dateFormat = "MM-yyyy"
+                    categorySum = category.items.filter("dateMonth == %@", dateFormatter.string(from: Date())).sum(ofProperty: "amount")
+                } else if segmentedControl.selectedSegmentIndex == 1 {
+                    dateFormatter.dateFormat = "yyyy"
+                    categorySum = category.items.filter("dateYear == %@", dateFormatter.string(from: Date())).sum(ofProperty: "amount")
+                }
                 cell.categoryName.text = category.title
                 cell.sumCategory.text = String(categorySum) + " \(category.currency)"
                 cell.progressView.progressTintColor = HexColor(category.color)
+                if category.currency == "$" {
+                    categorySum = categorySum * 80
+                } else if category.currency == "Є" {
+                    categorySum = categorySum * 90
+                } else if category.currency == "₽" {
+                    categorySum = categorySum * 1
+                }
                 cell.progressView.progress = Float(categorySum / allHistorysSum)
             }
+            cell.selectionStyle = .none
             return cell
         } else {
             return UITableViewCell()

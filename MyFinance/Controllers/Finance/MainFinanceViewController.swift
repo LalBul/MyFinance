@@ -28,12 +28,18 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
     @IBOutlet weak var mainTableView: UITableView!
     @IBOutlet weak var accountCollectionView: UICollectionView!
     
-  
+    
     var realm = try! Realm()
     var accounts: Results<Account>?
     var budget: Results<Budget>?
     var historyBudget: Results<HistoryBudget>?
     
+    var layout: UPCarouselFlowLayout {
+        let layout = UPCarouselFlowLayout()
+        layout.itemSize = CGSize(width: 160, height: 80)
+        layout.scrollDirection = .horizontal
+        return layout
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,7 +49,7 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         accountCollectionView.layer.cornerRadius = 10
         accountCollectionView.dataSource = self
         accountCollectionView.delegate = self
-     
+        
         mainTableView.contentInset = UIEdgeInsets.init(top: 0, left: 0, bottom: 0, right: 0)
         mainTableView.dataSource = self
         mainTableView.delegate = self
@@ -52,12 +58,7 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         financeView.clipsToBounds = true
         financeView.layer.cornerRadius = 20
         financeView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        
-        let layout = UPCarouselFlowLayout()
-        layout.itemSize = CGSize(width: 160, height: 80)
-        layout.scrollDirection = .horizontal;
-        accountCollectionView.collectionViewLayout = layout
-        
+    
         let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         
         navigationController?.navigationBar.titleTextAttributes = textAttributes
@@ -117,6 +118,7 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         }
         accountCollectionView.reloadData()
         mainTableView.reloadData()
+        accountCollectionView.collectionViewLayout = layout
         
     }
     
@@ -141,17 +143,17 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
 //MARK: - Table View
 extension MainFinanceViewController: UITableViewDelegate, UITableViewDataSource {
     
-     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-         return historyBudget?.count ?? 1
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return historyBudget?.count ?? 1
     }
     
-     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "HistoryBudget", for: indexPath) as! HistoryBudgetCell
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .short
         dateFormatter.locale = Locale(identifier: "ru_RU")
-         if let history = historyBudget?[indexPath.row] {
+        if let history = historyBudget?[indexPath.row] {
             if history.sum < 0 {
                 cell.sum.textColor = .white
                 cell.sum.text = String(format:"%.2f", history.sum) + " \(history.currency)"
@@ -179,14 +181,12 @@ extension MainFinanceViewController: UITableViewDelegate, UITableViewDataSource 
         segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(_:)), for: .valueChanged)
         segmentedControl.backgroundColor = HexColor("1C3459")
         segmentedControl.center = header.center
+        segmentedControl.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for:.normal)
         header.addSubview(segmentedControl)
-        
-        
-        
-        
+
         segmentedControl.edgesToSuperview(excluding: .bottom, insets: UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15), usingSafeArea: true)
         segmentedControl.height(30)
-
+        
         return header
     }
     
@@ -198,33 +198,30 @@ extension MainFinanceViewController: UITableViewDelegate, UITableViewDataSource 
         addHaptic()
         let dateFormatter = DateFormatter()
         switch (segmentedControl.selectedSegmentIndex) {
-                case 0:
+        case 0:
             historyBudget = realm.objects(HistoryBudget.self).sorted(byKeyPath: "date", ascending: false)
-            break
-                case 1:
+        case 1:
             dateFormatter.dateStyle = .medium
             dateFormatter.timeStyle = .none
             historyBudget = realm.objects(HistoryBudget.self).filter("dateDay == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
-            break
-                case 2:
+        case 2:
             dateFormatter.dateFormat = "MM-yyyy"
             historyBudget = realm.objects(HistoryBudget.self).filter("dateMonth == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
-            break
-                case 3:
+        case 3:
             dateFormatter.dateFormat = "yyyy"
             historyBudget = realm.objects(HistoryBudget.self).filter("dateYear == %@", dateFormatter.string(from: Date())).sorted(byKeyPath: "date", ascending: false)
-            break
-                default:
+        default:
             break
         }
         UIView.transition(with: mainTableView,
-                          duration: 0.35,
+                          duration: 0.15,
                           options: .transitionCrossDissolve,
                           animations: { self.mainTableView.reloadData() })
-        
     }
-
-
+    
+   
+    
+    
 }
 
 extension MainFinanceViewController: UICollectionViewDelegate, UICollectionViewDataSource  {
@@ -252,7 +249,7 @@ extension MainFinanceViewController: UICollectionViewDelegate, UICollectionViewD
                 configureCell.currency.text = account.currency
                 configureCell.title.text = account.title
                 configureCell.index = indexPath // Функционал удаления Копилки
-
+                
                 configureCell.view.layer.cornerRadius = 10
             }
             cell = configureCell
@@ -282,11 +279,11 @@ extension MainFinanceViewController: UICollectionViewDelegate, UICollectionViewD
             destinationVC.delegate = self
         }
     }
-
+    
 }
 
 extension UICollectionView {
-
+    
     func setEmptyMessage(_ message: String) {
         let messageLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
         messageLabel.text = message
@@ -296,10 +293,10 @@ extension UICollectionView {
         messageLabel.font = UIFont(name: "HelveticaNeue-Bold", size: 16)
         messageLabel.alpha = 0.8
         messageLabel.sizeToFit()
-
+        
         self.backgroundView = messageLabel;
     }
-
+    
     func restore() {
         self.backgroundView = nil
     }

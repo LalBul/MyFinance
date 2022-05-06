@@ -110,7 +110,7 @@ class ItemsTableViewController: UITableViewController, SwipeTableViewCellDelegat
         if let item = items?[indexPath.row], let category = selectedCategory {
             cell.buyName.text = item.title
             cell.buyPrice.text = String(format:"%.2f", item.amount) + " \(category.currency)"
-            cell.buyDate.text = formatter.string(from: item.date ?? Date())
+            cell.buyDate.text = formatter.string(from: item.date)
             cell.layer.borderWidth = CGFloat(3)
             cell.layer.borderColor = view.backgroundColor?.cgColor
             cell.view.layer.cornerRadius = 15

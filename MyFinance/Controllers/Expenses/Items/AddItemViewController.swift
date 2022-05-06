@@ -108,9 +108,9 @@ class AddItemViewController: UIViewController, UpdateAccount {
             }
             do {
                 try realm.write {
-
                     if switchAccount.isOn {
                         if selectedAccount != nil {
+                            newItem.isAccount = true
                             let newAccountHistory = AccountHistory()
                             newAccountHistory.sum = -amountInDouble
                             if wasteTextField.text != "" {
@@ -122,26 +122,24 @@ class AddItemViewController: UIViewController, UpdateAccount {
                             selectedAccount?.history.append(newAccountHistory)
                             selectedAccount?.collected -= amountInDouble
                         } else if myBudget != nil {
-                                                    if selectedCategory?.currency == "$" {
-                                                        myBudget?[0].collected -= amountInDouble * 80
-                                                    } else if selectedCategory?.currency == "Є" {
-                                                        myBudget?[0].collected -= amountInDouble * 90
-                                                    } else if selectedCategory?.currency == "₽" {
-                                                        myBudget?[0].collected -= amountInDouble
-                                                    }
-                                                    let newHistoryBudget = HistoryBudget()
-                                                    newHistoryBudget.sum = -amountInDouble
-                                                    newHistoryBudget.currency = selectedCategory?.currency ?? ""
-                                                    newHistoryBudget.date = datePickerView.date
-                                                    if wasteTextField.text != "" {
-                                                        newHistoryBudget.operation = wasteTextField.text ?? "Трата"
-                                                    } else {
-                                                        newHistoryBudget.operation = "Трата"
-                                                    }
-                                                    newHistoryBudget.getDateDay()
-                                                    newHistoryBudget.getDateMonth()
-                                                    newHistoryBudget.getDateYear()
-                                                    myBudget?[0].history.append(newHistoryBudget)
+                            newItem.isBudget = true
+                            if selectedCategory?.currency == "$" {
+                                myBudget?[0].collected -= amountInDouble * 80
+                            } else if selectedCategory?.currency == "Є" {
+                                myBudget?[0].collected -= amountInDouble * 90
+                            } else if selectedCategory?.currency == "₽" {
+                                myBudget?[0].collected -= amountInDouble
+                            }
+                            let newHistoryBudget = HistoryBudget()
+                            newHistoryBudget.date = datePickerView.date
+                            newHistoryBudget.sum = -amountInDouble
+                            newHistoryBudget.currency = selectedCategory?.currency ?? ""
+                            if wasteTextField.text != "" {
+                                newHistoryBudget.operation = wasteTextField.text ?? "Трата"
+                            } else {
+                                newHistoryBudget.operation = "Трата"
+                            }
+                            myBudget?[0].history.append(newHistoryBudget)
                         }
                     }
                     selectedCategory?.items.append(newItem)
@@ -185,18 +183,18 @@ extension AddItemViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField == amountTextField {
             if string == "," {
-                    let countdots = textField.text!.components(separatedBy: ",").count - 1
-                    if countdots == 0 {
-                        return true
+                let countdots = textField.text!.components(separatedBy: ",").count - 1
+                if countdots == 0 {
+                    return true
+                } else {
+                    if countdots > 0 && string == "," {
+                        return false
                     } else {
-                        if countdots > 0 && string == "," {
-                            return false
-                        } else {
-                            return true
-                        }
+                        return true
                     }
                 }
-                return true
+            }
+            return true
         }
         return true
     }

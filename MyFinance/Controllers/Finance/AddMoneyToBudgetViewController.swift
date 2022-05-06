@@ -12,7 +12,7 @@ import ChameleonFramework
 
 class AddMoneyToBudgetViewController: UIViewController {
     
-   
+    
     @IBOutlet weak var sumLabel: UILabel!
     @IBOutlet weak var nameIncome: UITextField!
     @IBOutlet weak var buttonsNumebrsCollectionView: UICollectionView!
@@ -26,7 +26,7 @@ class AddMoneyToBudgetViewController: UIViewController {
     let numbers = [
         "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "C"
     ]
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -59,9 +59,6 @@ class AddMoneyToBudgetViewController: UIViewController {
             }
             newHistoryBudget.date = Date()
             newHistoryBudget.currency = "₽"
-            newHistoryBudget.getDateDay()
-            newHistoryBudget.getDateMonth()
-            newHistoryBudget.getDateYear()
             do {
                 try realm.write({
                     budget?[0].collected += Double(sumLabel.text!)!
@@ -104,7 +101,7 @@ extension AddMoneyToBudgetViewController:  UICollectionViewDataSource, UICollect
         cell.backgroundColor = HexColor("19365D")
         return cell
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         let leftRightPadding = view.frame.width * 0.13

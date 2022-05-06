@@ -11,5 +11,4 @@ class SettingsCell: UITableViewCell {
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var imageSetting: UIImageView!
     @IBOutlet weak var view: UIView!
-    
 }

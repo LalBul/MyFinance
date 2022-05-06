@@ -43,6 +43,7 @@ class AddLimitViewController: UIViewController {
         numberBackgroundView.layer.cornerRadius = 10
     
         mainDatePicker.minimumDate = Date()
+
     }
     
     @IBAction func addLimit(_ sender: UIButton) {

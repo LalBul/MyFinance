@@ -9,32 +9,32 @@ import Foundation
 import RealmSwift
 
 class HistoryBudget: Object {
+    
     @objc dynamic var sum: Double = 0
     @objc dynamic var operation: String = ""
-    @objc dynamic var date: Date = Date()
+    @objc dynamic var date: Date = Date() {
+        didSet {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .medium
+            dateFormatter.timeStyle = .none
+            dateDay = dateFormatter.string(from: date)
+            
+            let dateFormatter1 = DateFormatter()
+            dateFormatter1.dateFormat = "MM-yyyy"
+            dateMonth = dateFormatter1.string(from: date)
+            
+            let dateFormatter2 = DateFormatter()
+            dateFormatter2.dateFormat = "yyyy"
+            dateYear = dateFormatter2.string(from: date)
+        }
+    }
+    @objc dynamic var currency: String = ""
+    
     @objc dynamic var dateDay: String = ""
     @objc dynamic var dateMonth: String = ""
     @objc dynamic var dateYear: String = ""
-    @objc dynamic var currency: String = ""
+    
     var parentBudget = LinkingObjects(fromType: Budget.self, property: "history")
+  
 
-    func getDateDay() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .none
-        dateDay = dateFormatter.string(from: date)
-    }
-    
-    func getDateMonth() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM-yyyy"
-        dateMonth = dateFormatter.string(from: date)
-    }
-    
-    func getDateYear() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy"
-        dateYear = dateFormatter.string(from: date)
-    }
-    
 }

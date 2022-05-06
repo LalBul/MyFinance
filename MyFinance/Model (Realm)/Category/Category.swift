@@ -14,4 +14,5 @@ class Category: Object {
     @objc dynamic var currency: String = ""
     let items = List<Item>()
     //let history = List<HistoryItem>()
+ 
 }

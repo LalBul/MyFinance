@@ -72,7 +72,7 @@ extension AllPurchasesController: UITableViewDelegate, UITableViewDataSource, Sw
         if let item = itemsArray?[indexPath.row] {
             cell.amount.text = String(item.amount) + " \(item.parentCategory[0].currency )"
             cell.name.text = item.title
-            cell.date.text = formatter.string(from: item.date!)
+            cell.date.text = formatter.string(from: item.date)
             cell.category.text = item.parentCategory[0].title
             cell.colorCategory.backgroundColor = HexColor(item.parentCategory[0].color)
         }

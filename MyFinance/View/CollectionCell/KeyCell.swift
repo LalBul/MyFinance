@@ -10,7 +10,6 @@ import UIKit
 class KeyCell: UICollectionViewCell {
     
     let digitsLabel = UILabel()
-    let lettersLabel = UILabel()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -19,7 +18,7 @@ class KeyCell: UICollectionViewCell {
         digitsLabel.text = "8"
         digitsLabel.textAlignment = .center
         digitsLabel.font = UIFont(name: "HelveticaNeue-Bold", size: 30)
-        
+        digitsLabel.textColor = .white
         
         let stackView = UIStackView(arrangedSubviews: [digitsLabel])
         stackView.axis = .vertical

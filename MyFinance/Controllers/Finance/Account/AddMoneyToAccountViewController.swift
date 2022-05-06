@@ -24,10 +24,10 @@ class AddMoneyToAccountViewController: UIViewController {
     let numbers = [
         "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "C"
     ]
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         buttonsNumebrsCollectionView.delegate = self
         buttonsNumebrsCollectionView.dataSource = self
         buttonsNumebrsCollectionView.backgroundColor = .clear
@@ -73,9 +73,9 @@ class AddMoneyToAccountViewController: UIViewController {
                 print(error)
             }
         }
-  
+        
     }
-
+    
 }
 
 extension AddMoneyToAccountViewController:  UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -90,7 +90,7 @@ extension AddMoneyToAccountViewController:  UICollectionViewDataSource, UICollec
         cell.backgroundColor = HexColor("19365D")
         return cell
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         let leftRightPadding = view.frame.width * 0.13

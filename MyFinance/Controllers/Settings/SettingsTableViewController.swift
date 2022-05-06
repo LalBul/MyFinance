@@ -9,19 +9,19 @@ import UIKit
 import RealmSwift
 
 class SettingsTableViewController: UITableViewController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         tableView.rowHeight = 50
         tableView.separatorStyle = .none
     }
     
     var realm = try! Realm()
     let defaults = UserDefaults.standard
-
+    
     // MARK: - Table view data source
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
@@ -36,6 +36,8 @@ class SettingsTableViewController: UITableViewController {
         cell.imageSetting.backgroundColor = .white
         cell.imageSetting.layer.cornerRadius = 5
         
+        cell.selectionStyle = .none
+        
         return cell
     }
     
@@ -45,8 +47,7 @@ class SettingsTableViewController: UITableViewController {
                 try realm.write({
                     let alert = UIAlertController(title: "Удалить все данные?", message: "" ,         preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction(title: "Отмена", style: UIAlertAction.Style.default, handler: { _ in
-                        addHaptic()
-                                //Cancel Action
+                        //Cancel Action
                     }))
                     alert.addAction(UIAlertAction(title: "Удалить", style: UIAlertAction.Style.default, handler: { [self](_: UIAlertAction!) in
                         do {
@@ -69,6 +70,6 @@ class SettingsTableViewController: UITableViewController {
             }
         }
     }
-   
-
+    
+    
 }
