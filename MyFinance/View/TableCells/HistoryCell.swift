@@ -7,6 +7,7 @@
 
 import UIKit
 import SwipeCellKit
+import RealmSwift
 
 class HistoryCell: SwipeTableViewCell {
     @IBOutlet weak var name: UILabel!
@@ -15,3 +16,4 @@ class HistoryCell: SwipeTableViewCell {
     @IBOutlet weak var date: UILabel!
     @IBOutlet weak var view: UIView!
 }
+

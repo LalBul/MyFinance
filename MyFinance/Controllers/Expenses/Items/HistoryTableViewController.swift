@@ -13,9 +13,13 @@ import ChameleonFramework
 
 class HistoryTableViewController: UITableViewController, SwipeTableViewCellDelegate {
     
+    var realm = try! Realm()
+    var historyItemsArray: Results<HistoryItem>?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         loadItems()
+        addHaptic()
         
         tableView.rowHeight = 100
         self.tabBarController?.tabBar.isHidden = true
@@ -29,10 +33,7 @@ class HistoryTableViewController: UITableViewController, SwipeTableViewCellDeleg
         super.viewWillAppear(animated)
         loadItems()
     }
-    
-    var realm = try! Realm()
-    var historyItemsArray: Results<HistoryItem>?
-    
+
     @IBAction func deleteAllHistory(_ sender: UIBarButtonItem) {
         addHaptic()
         do {
@@ -62,10 +63,23 @@ class HistoryTableViewController: UITableViewController, SwipeTableViewCellDeleg
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         if let historyArray = historyItemsArray?[indexPath.row] {
-            cell.category.text = historyArray.category
+            
+            print(historyArray)
+            
+            if historyArray.parentCategory[0].currency == "₽" {
+                cell.amount.text = String(format:"%.2f", historyArray.amount)
+            } else if historyArray.parentCategory[0].currency == "Є" {
+                cell.amount.text = String(format:"%.2f", historyArray.amountInEU)
+            } else if historyArray.parentCategory[0].currency == "$" {
+                cell.amount.text = String(format:"%.2f", historyArray.amountInUS)
+            }
+            
+            cell.amount.text?.append(" \(historyArray.parentCategory[0].currency)")
+            
+            cell.category.text = historyArray.parentCategory[0].title
             cell.date.text = formatter.string(from: historyArray.date!)
             cell.name.text = historyArray.title
-            cell.amount.text = String(historyArray.amount)
+            
             cell.view.layer.cornerRadius = 15
             cell.view.layer.masksToBounds = true
             cell.layer.borderWidth = CGFloat(3)

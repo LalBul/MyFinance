@@ -10,7 +10,7 @@ import RealmSwift
 
 class HistoryBudget: Object {
     
-    @objc dynamic var sum: Double = 0
+    
     @objc dynamic var operation: String = ""
     @objc dynamic var date: Date = Date() {
         didSet {
@@ -29,6 +29,28 @@ class HistoryBudget: Object {
         }
     }
     @objc dynamic var currency: String = ""
+    
+    @objc dynamic var sum: Double = 0
+    @objc dynamic var sumInUS: Double = 0
+    @objc dynamic var sumInEU: Double = 0
+    
+    func addCurrencyMoney(currency: String, amount: Double) {
+        
+        if currency == "₽" {
+            self.sum = amount
+            self.sumInUS = amount / 80
+            self.sumInEU = amount / 90
+        } else if currency == "Є" {
+            self.sum = amount * 90
+            self.sumInUS = amount * 1.10
+            self.sumInEU = amount
+        } else if currency == "$" {
+            self.sum = amount * 80
+            self.sumInUS = amount
+            self.sumInEU = amount * 0.90
+        }
+    }
+
     
     @objc dynamic var dateDay: String = ""
     @objc dynamic var dateMonth: String = ""

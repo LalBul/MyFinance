@@ -26,8 +26,9 @@ class AddLimitViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        addHaptic()
         
-        self.tabBarController?.tabBar.isHidden = true
+        tabBarController?.tabBar.isHidden = true
         
         buttonsNumebrsCollectionView.delegate = self
         buttonsNumebrsCollectionView.dataSource = self
@@ -66,7 +67,7 @@ class AddLimitViewController: UIViewController {
         deleteLastSymbolLabel()
     }
     
-    // Проверяет последний символ ли точка, если да, то точка удаляется и появляется возможность поставить её еще раз.
+    // Проверяет последний ли символ точка, если да, то точка удаляется и появляется возможность поставить её еще раз.
     func deleteLastSymbolLabel() {
         if numberLabel.text != "" {
             if let lastSymbol = numberLabel.text?.last {
@@ -115,7 +116,7 @@ extension AddLimitViewController: UICollectionViewDataSource, UICollectionViewDe
         
         let leftRightPadding = view.frame.width * 0.1
         
-        return .init(top: 16, left: leftRightPadding, bottom: 16, right: leftRightPadding)
+        return .init(top: 30, left: leftRightPadding, bottom: 0, right: leftRightPadding)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

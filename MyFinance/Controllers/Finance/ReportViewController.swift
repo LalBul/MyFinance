@@ -34,6 +34,7 @@ class ReportViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        addHaptic()
         
         segmentedControl.selectedSegmentIndex = 0
         segmentedControl.sendActions(for: UIControl.Event.valueChanged)
@@ -53,6 +54,7 @@ class ReportViewController: UIViewController {
         historyBudget = realm.objects(HistoryBudget.self)
         
     }
+ 
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -61,11 +63,9 @@ class ReportViewController: UIViewController {
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?){
-        if(keyPath == "contentSize"){
-            if let tbl = object as? UITableView
-            {
-                if tbl == self.categoryTableView
-                {
+        if keyPath == "contentSize" {
+            if let tbl = object as? UITableView {
+                if tbl == self.categoryTableView {
                     if let newvalue = change?[.newKey] {
                         let newsize  = newvalue as! CGSize
                         self.categoryTableViewHeight.constant = newsize.height
@@ -87,21 +87,9 @@ class ReportViewController: UIViewController {
         if let history = historyBudget {
             for i in history {
                 if i.sum > 0 {
-                    if i.currency == "$" {
-                        newPieChartDataPlus.value += i.sum * 80
-                    } else if i.currency == "Є" {
-                        newPieChartDataPlus.value += i.sum * 90
-                    } else if i.currency == "₽" {
-                        newPieChartDataPlus.value += i.sum
-                    }
+                    newPieChartDataPlus.value += i.sum
                 } else if i.sum < 0 {
-                    if i.currency == "$" {
-                        newPieChartDataMinus.value += i.sum * 80 * -1
-                    } else if i.currency == "Є" {
-                        newPieChartDataMinus.value += i.sum * 90 * -1
-                    } else if i.currency == "₽" {
-                        newPieChartDataMinus.value += i.sum * -1
-                    }
+                    newPieChartDataMinus.value += i.sum * -1
                 }
             }
         }
@@ -176,24 +164,35 @@ extension ReportViewController: UITableViewDelegate, UITableViewDataSource {
             if let category = categoryArray?[indexPath.row] {
                 let dateFormatter = DateFormatter()
                 var categorySum: Double = category.items.sum(ofProperty: "amount")
+                var categorySumForLabel: Double = 0
                 if segmentedControl.selectedSegmentIndex == 0 {
                     dateFormatter.dateFormat = "MM-yyyy"
-                    categorySum = category.items.filter("dateMonth == %@", dateFormatter.string(from: Date())).sum(ofProperty: "amount")
+                    categorySum = category.items.filter("dateMonth == %@ AND isBudget == true", dateFormatter.string(from: Date())).sum(ofProperty: "amount")
+                    if category.currency == "₽" {
+                        categorySumForLabel = category.items.filter("dateMonth == %@ AND isBudget == true", dateFormatter.string(from: Date())).sum(ofProperty: "amount")
+                    } else if category.currency == "Є" {
+                        categorySumForLabel = category.items.filter("dateMonth == %@ AND isBudget == true", dateFormatter.string(from: Date())).sum(ofProperty: "amountInEU")
+                    } else if category.currency == "$" {
+                        categorySumForLabel = category.items.filter("dateMonth == %@ AND isBudget == true", dateFormatter.string(from: Date())).sum(ofProperty: "amountInUS")
+                    }
                 } else if segmentedControl.selectedSegmentIndex == 1 {
                     dateFormatter.dateFormat = "yyyy"
-                    categorySum = category.items.filter("dateYear == %@", dateFormatter.string(from: Date())).sum(ofProperty: "amount")
+                    categorySum = category.items.filter("dateYear == %@ AND isBudget == true", dateFormatter.string(from: Date())).sum(ofProperty: "amount")
+                    if category.currency == "₽" {
+                        categorySumForLabel = category.items.filter("dateYear == %@ AND isBudget == true", dateFormatter.string(from: Date())).sum(ofProperty: "amount")
+                    } else if category.currency == "Є" {
+                        categorySumForLabel = category.items.filter("dateYear == %@ AND isBudget == true", dateFormatter.string(from: Date())).sum(ofProperty: "amountInEU")
+                    } else if category.currency == "$" {
+                        categorySumForLabel = category.items.filter("dateYear == %@ AND isBudget == true", dateFormatter.string(from: Date())).sum(ofProperty: "amountInUS")
+                    }
                 }
                 cell.categoryName.text = category.title
-                cell.sumCategory.text = String(categorySum) + " \(category.currency)"
+                cell.sumCategory.text = String(categorySumForLabel) + " \(category.currency)"
                 cell.progressView.progressTintColor = HexColor(category.color)
-                if category.currency == "$" {
-                    categorySum = categorySum * 80
-                } else if category.currency == "Є" {
-                    categorySum = categorySum * 90
-                } else if category.currency == "₽" {
-                    categorySum = categorySum * 1
-                }
                 cell.progressView.progress = Float(categorySum / allHistorysSum)
+                if categorySum == 0 && allHistorysSum == 0 {
+                    cell.progressView.progress = 0
+                }
             }
             cell.selectionStyle = .none
             return cell
@@ -201,5 +200,6 @@ extension ReportViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
     }
+    
 }
 

@@ -16,35 +16,48 @@ protocol UpdateAccount {
 }
 
 class AddItemViewController: UIViewController, UpdateAccount {
+
+    func closedView() {
+        if selectedAccount == nil && myBudget == nil {
+            DispatchQueue.main.async { [self] in
+                switchAccount.isOn = false
+            }
+        }
+    }
     
     func updateBudget() {
         selectedAccount = nil
         myBudget = realm.objects(Budget.self)
-        selectedAccountOrBudgetLabel.text = "Оплата с основного бюджета"
-    }
-    
-    func closedView() {
-        if selectedAccount == nil && myBudget == nil {
-            switchAccount.isOn = false
+        if let budget = myBudget {
+            balanceLabel.text = "Баланс бюджета: \(budget[0].collected)"
         }
+        selectedAccountOrBudgetLabel.text = "Оплата с основного бюджета"
+        switchAccount.isOn = true
     }
-    
+
     func updateAccount(account: Account) {
         myBudget = nil
         selectedAccount = account
-        selectedAccountOrBudgetLabel.text = "Оплата со счёта: " + (selectedAccount?.title ?? "") + " " + (selectedAccount?.currency ?? "")
+        balanceLabel.text = "Баланс счёта: \(account.collected) \(account.currency)"
+        selectedAccountOrBudgetLabel.text = "Оплата со счёта: " + (selectedAccount?.title ?? "")
+        switchAccount.isOn = true
     }
     
     @IBOutlet weak var wasteTextField: UITextField!
     @IBOutlet weak var amountTextField: UITextField!
+    
     @IBOutlet weak var datePickerView: UIDatePicker!
+
     @IBOutlet weak var addItemOutlet: UIButton!
+    
     @IBOutlet weak var categoryLabel: UILabel!
     @IBOutlet weak var selectedAccountOrBudgetLabel: UILabel!
+    @IBOutlet weak var balanceLabel: UILabel!
     
-    let realm = try! Realm()
     let defaults = UserDefaults.standard
     var defaultValue: Double = 0
+    
+    let realm = try! Realm()
     var selectedCategory: Category?
     var myBudget: Results<Budget>?
     var items = ItemsTableViewController()
@@ -53,11 +66,12 @@ class AddItemViewController: UIViewController, UpdateAccount {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        DispatchQueue.main.async {
+            addHaptic()
+        }
+        closedView()
         
         wasteTextField.becomeFirstResponder()
-        
-        defaultValue = defaults.double(forKey: "Limit")
-        
         wasteTextField.attributedPlaceholder = NSAttributedString(string: "Название покупки", attributes: [NSAttributedString.Key.foregroundColor : UIColor.darkGray, NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 30)])
         wasteTextField.layer.cornerRadius = 10
         
@@ -69,7 +83,9 @@ class AddItemViewController: UIViewController, UpdateAccount {
         amountTextField.delegate = self
         
         addItemOutlet.layer.cornerRadius = 10
+        
         datePickerView.maximumDate = Date()
+   
     }
     
     @IBOutlet weak var switchAccount: UISwitch!
@@ -79,11 +95,13 @@ class AddItemViewController: UIViewController, UpdateAccount {
         } else if sender.isOn == false {
             myBudget = nil
             selectedAccount = nil
+            balanceLabel.text = ""
             selectedAccountOrBudgetLabel.text = "Оплата со счёта или бюджета: "
         }
     }
     
     @IBAction func addItem(_ sender: UIButton) {
+        addHaptic()
         let numberFormatter = NumberFormatter()
         numberFormatter.decimalSeparator = ","
         if let waste = wasteTextField.text, let amount = amountTextField.text {
@@ -101,10 +119,12 @@ class AddItemViewController: UIViewController, UpdateAccount {
             } else {
                 newItem.title = "Новая покупка"
             }
-            if amountInDouble > 0 {
-                newItem.amount = amountInDouble
-            } else {
-                newItem.amount = 0
+            if let categoryCurrency = selectedCategory?.currency {
+                if amountInDouble > 0 {
+                    newItem.addCurrencyMoney(currency: categoryCurrency, amount: amountInDouble)
+                } else {
+                    newItem.addCurrencyMoney(currency: categoryCurrency, amount: 0)
+                }
             }
             do {
                 try realm.write {
@@ -132,7 +152,9 @@ class AddItemViewController: UIViewController, UpdateAccount {
                             }
                             let newHistoryBudget = HistoryBudget()
                             newHistoryBudget.date = datePickerView.date
-                            newHistoryBudget.sum = -amountInDouble
+                            if let categoryCurrency = selectedCategory?.currency {
+                                newHistoryBudget.addCurrencyMoney(currency: categoryCurrency, amount: -amountInDouble)
+                            }
                             newHistoryBudget.currency = selectedCategory?.currency ?? ""
                             if wasteTextField.text != "" {
                                 newHistoryBudget.operation = wasteTextField.text ?? "Трата"
@@ -143,15 +165,6 @@ class AddItemViewController: UIViewController, UpdateAccount {
                         }
                     }
                     selectedCategory?.items.append(newItem)
-                    if defaults.double(forKey: "Limit") > 0 || defaults.double(forKey: "Limit") < 0  {
-                        if selectedCategory?.currency == "$" {
-                            defaults.setValue(defaultValue-amountInDouble * 80, forKey: "Limit")
-                        } else if selectedCategory?.currency == "Є" {
-                            defaults.setValue(defaultValue-amountInDouble * 90, forKey: "Limit")
-                        } else if selectedCategory?.currency == "₽" {
-                            defaults.setValue(defaultValue-amountInDouble, forKey: "Limit")
-                        }
-                    }
                     backAnimate()
                     delegate?.update()
                     dismiss(animated: true)

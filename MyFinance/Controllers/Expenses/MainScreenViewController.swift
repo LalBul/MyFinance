@@ -30,18 +30,18 @@ func addHaptic() {
 }
 
 class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, UIColorPickerViewControllerDelegate {
-  
+    
     @IBOutlet weak var mainTableView: UITableView!
     @IBOutlet weak var preparedTableView: UITableView!
     @IBOutlet weak var limitTodayLabel: UILabel!
     @IBOutlet weak var addLimitButton: UIBarButtonItem!
- 
+    
     var realm = try! Realm()
     var categoryArray: Results<Category>?
     var moneyBoxes: Results<MoneyBox>?
     let defaults = UserDefaults.standard
     var session: WCSession?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -60,23 +60,25 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         preparedTableView.rowHeight = 60
         
         chartView.highlightPerTapEnabled = false
+        chartView.animate(xAxisDuration: 1, yAxisDuration: 1)
         
         mainTableView.delegate = self
         mainTableView.dataSource = self
         mainTableView.backgroundColor = UIColor.clear
-        mainTableView.layer.cornerRadius = 10
         mainTableView.rowHeight = 60
         mainTableView.showsHorizontalScrollIndicator = false
         mainTableView.showsVerticalScrollIndicator = false
-    
-        chartView.animate(xAxisDuration: 1, yAxisDuration: 1)
         
         categoryText.delegate = self
         
         tabBarController?.tabBar.tintColor = HexColor("#3762A5")
+        tabBarController?.tabBar.isHidden = false
         
         navigationController?.navigationBar.barTintColor = view.backgroundColor
-        self.tabBarController?.tabBar.isHidden = false
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -171,16 +173,8 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
             for i in array {
                 let newPieChartData = PieChartDataEntry()
                 if i.items.sum(ofProperty: "amount") > 0.0 {
-                    if i.currency == "$" {
-                        newPieChartData.value = i.items.sum(ofProperty: "amount") * 80
-                        allAmount += i.items.sum(ofProperty: "amount") * 80
-                    } else if i.currency == "Є" {
-                        newPieChartData.value = i.items.sum(ofProperty: "amount") * 90
-                        allAmount += i.items.sum(ofProperty: "amount") * 90
-                    } else if i.currency == "₽" {
-                        newPieChartData.value = i.items.sum(ofProperty: "amount")
-                        allAmount += i.items.sum(ofProperty: "amount")
-                    }
+                    newPieChartData.value = i.items.sum(ofProperty: "amount")
+                    allAmount += i.items.sum(ofProperty: "amount")
                 } else {continue}
                 if let color = HexColor(i.color) {
                     colors.append(color)
@@ -188,7 +182,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
                 downloadDataEnty.append(newPieChartData)
             }
         }
-
+        
         chartView.centerAttributedText = NSAttributedString(string: String(format:"%.1f", allAmount) + " ₽", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white, NSAttributedString.Key.font : UIFont(name: "HelveticaNeue-Bold", size: 14)!])
         chartView.holeColor = .clear
         chartView.transparentCircleColor = .clear
@@ -255,19 +249,19 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
     
     fileprivate func addCategoryViewSettings() {
         addBlurEffect()
+        tabBarController?.tabBar.isHidden = true
         
         for i in currencyButtons {
             i.layer.cornerRadius = i.frame.size.height / 2
             i.backgroundColor = .white
         }
         
-        createButton.alpha = 0.5
-        
         tap = UITapGestureRecognizer(target: self, action: #selector(tapMainView))
         tap.isEnabled = true
         tap.delegate = self
         
         createButton.isEnabled = false
+        createButton.alpha = 0.5
         
         sampleView.layer.cornerRadius = 10
         viewAddAndColorButton.layer.cornerRadius = 10
@@ -292,16 +286,15 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
         addCategoryOutlet.isEnabled = false
         
         UIView.animate(withDuration: 0.2) {
-            self.addCategoryView.center.y = self.view.center.y 
+            self.addCategoryView.center.y = self.view.center.y
             self.addCategoryView.transform = CGAffineTransform.identity
             self.addCategoryView.alpha = 1
             self.categoryText.becomeFirstResponder()
         }
-        
-        self.tabBarController?.tabBar.isHidden = true
     }
     
     @IBAction func addCategoryButton(_ sender: UIButton) {
+        addHaptic()
         if let category = categoryText.text {
             var colorHex: String = "132743"
             if let color = colorView.backgroundColor {
@@ -336,7 +329,8 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
     }
     
     func backAnimate() {
-        self.blurEffectView.removeFromSuperview()
+        addHaptic()
+        blurEffectView.removeFromSuperview()
         categoryText.text = ""
         UIView.animate(withDuration: 0.25) {
             self.addCategoryView.alpha = 0
@@ -347,7 +341,7 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
             self.addCategoryView.removeFromSuperview()
         }
         navigationController?.navigationBar.isHidden = false
-        self.tabBarController?.tabBar.isHidden = false
+        tabBarController?.tabBar.isHidden = false
         
     }
     
@@ -372,34 +366,35 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
     @IBAction func toColourSettings(_ sender: UIButton) {
         
         if #available(iOS 14.0, *) {
+            addHaptic()
             let colorPickerVC = UIColorPickerViewController()
             colorPickerVC.delegate = self
             present(colorPickerVC, animated: true)
         } else {
             tap.isEnabled = false
             self.view.endEditing(true)
-
+            
             demonstrationView.layer.cornerRadius = demonstrationView.frame.size.width/2
             demonstrationViewText.font = UIFont.boldSystemFont(ofSize: 20)
-
+            
             let previewColorSlider = DefaultPreviewView()
             previewColorSlider.side = .right
             previewColorSlider.animationDuration = 0
             previewColorSlider.offsetAmount = 10
-
+            
             newColorSlider = ColorSlider(orientation: .horizontal, previewView: previewColorSlider)
             newColorSlider.frame = CGRect(x: 0, y: 0, width: 300, height: 40)
             newColorSlider.center.x = colorSlider.center.x
             newColorSlider.center.y = newColorSlider.center.y + 25
             newColorSlider.addTarget(nil, action: #selector(changedColor(_:)), for: .valueChanged)
-
+            
             colorSettingsUIView.layer.cornerRadius = 20
             colorSettingsUIView.center = view.center
             view.addSubview(colorSettingsUIView)
-
+            
             colorSlider.addSubview(newColorSlider)
         }
-
+        
     }
     
     @available(iOS 14.0, *)
@@ -449,8 +444,6 @@ class MainScreenViewController: UIViewController, UIGestureRecognizerDelegate, U
 //MARK: - Table View
 
 extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, SwipeTableViewCellDelegate {
-
-    
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 0
@@ -478,7 +471,14 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
             let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! CategoryCell
             cell.delegate = self
             if let category = categoryArray?[indexPath.row] {
-                let categorySum: Double = category.items.sum(ofProperty: "amount")
+                var categorySum: Double = 0
+                if category.currency == "₽" {
+                    categorySum = category.items.sum(ofProperty: "amount")
+                } else if category.currency == "Є" {
+                    categorySum = category.items.sum(ofProperty: "amountInEU")
+                } else if category.currency == "$" {
+                    categorySum = category.items.sum(ofProperty: "amountInUS")
+                }
                 cell.layer.borderColor = UIColor.black.cgColor
                 cell.layer.borderWidth = 0.25
                 cell.view.backgroundColor = HexColor(category.color)
@@ -505,6 +505,7 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
             if let array = self.categoryArray {
                 do {
                     try self.realm.write {
+                        addHaptic()
                         self.realm.delete(array[indexPath.row].items)
                         self.realm.delete(array[indexPath.row])
                         self.updateChartData()
@@ -517,6 +518,7 @@ extension MainScreenViewController: UITableViewDelegate, UITableViewDataSource, 
         }
         
         let editAction = SwipeAction(style: .default, title: "Изменить") { swipeAction, indexPath in
+            addHaptic()
             
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             guard let secondViewController = storyboard.instantiateViewController(identifier: "ChangeCategoryViewController") as? ChangeCategoryViewController else { return }
@@ -617,12 +619,8 @@ extension MainScreenViewController: UITextFieldDelegate {
             if colorViewText.text == "" {
                 colorViewText.text = "Категория"
             }
-            print(categoryText.text ?? "")
         }
-
     }
-    
-    
 }
 
 extension MainScreenViewController: UpdateMainScreenViewController {
@@ -630,6 +628,6 @@ extension MainScreenViewController: UpdateMainScreenViewController {
     func update() {
         limitTodayLabel.text = "Лимит отсутствует"
     }
-
+    
 }
 

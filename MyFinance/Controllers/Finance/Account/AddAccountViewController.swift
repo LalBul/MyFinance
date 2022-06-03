@@ -9,10 +9,20 @@ import UIKit
 import RealmSwift
 
 class AddAccountViewController: UIViewController {
+    
+    @IBOutlet weak var accountName: UITextField!
+    @IBOutlet weak var addAccountOutlet: UIButton!
+    @IBOutlet var currencyButton: [UIButton]!
+    
+    var selectedCurrency: String = ""
+    
+    let realm = try! Realm()
+    weak var delegate: MainFinanceViewController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        addHaptic()
+        
         addAccountOutlet.layer.cornerRadius = 10
         addAccountOutlet.isEnabled = false
         addAccountOutlet.alpha = 0.5
@@ -25,12 +35,7 @@ class AddAccountViewController: UIViewController {
        
     }
     
-    @IBOutlet weak var accountName: UITextField!
-    @IBOutlet weak var addAccountOutlet: UIButton!
-    @IBOutlet var currencyButton: [UIButton]!
-    
-    let realm = try! Realm()
-    weak var delegate: MainFinanceViewController?
+
  
     @IBAction func addAccount(_ sender: UIButton) {
         addHaptic()
@@ -51,7 +56,7 @@ class AddAccountViewController: UIViewController {
         }
     }
     
-    var selectedCurrency: String = ""
+  
     @IBAction func currencyButtons(_ sender: UIButton) {
         addHaptic()
         for i in currencyButton {

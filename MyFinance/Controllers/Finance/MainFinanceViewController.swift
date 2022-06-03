@@ -18,16 +18,11 @@ protocol UpdateDataViewController {
 }
 
 class MainFinanceViewController: UIViewController, UpdateDataViewController {
-    
-    func update() {
-        loadItems()
-    }
-    
+        
     @IBOutlet weak var financeView: UIView!
     @IBOutlet weak var budgetLabel: UILabel!
     @IBOutlet weak var mainTableView: UITableView!
     @IBOutlet weak var accountCollectionView: UICollectionView!
-    
     
     var realm = try! Realm()
     var accounts: Results<Account>?
@@ -39,6 +34,10 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         layout.itemSize = CGSize(width: 160, height: 80)
         layout.scrollDirection = .horizontal
         return layout
+    }
+    
+    func update() {
+        loadItems()
     }
     
     override func viewDidLoad() {
@@ -62,6 +61,7 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
         let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         
         navigationController?.navigationBar.titleTextAttributes = textAttributes
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -134,7 +134,6 @@ class MainFinanceViewController: UIViewController, UpdateDataViewController {
     }
     
     @IBAction func toReport(_ sender: UIBarButtonItem) {
-        addHaptic()
         performSegue(withIdentifier: "toReport", sender: self)
     }
     
@@ -155,8 +154,14 @@ extension MainFinanceViewController: UITableViewDelegate, UITableViewDataSource 
         dateFormatter.locale = Locale(identifier: "ru_RU")
         if let history = historyBudget?[indexPath.row] {
             if history.sum < 0 {
+                if history.currency == "₽" {
+                    cell.sum.text = String(format:"%.2f", history.sum) + " \(history.currency)"
+                } else if history.currency == "Є" {
+                    cell.sum.text = String(format:"%.2f", history.sumInEU) + " \(history.currency)"
+                } else if history.currency == "$" {
+                    cell.sum.text = String(format:"%.2f", history.sumInUS) + " \(history.currency)"
+                }
                 cell.sum.textColor = .white
-                cell.sum.text = String(format:"%.2f", history.sum) + " \(history.currency)"
             } else {
                 cell.sum.textColor = HexColor("33A64B")
                 cell.sum.text = "+" + String(format:"%.2f", history.sum) + " \(history.currency)"
@@ -166,7 +171,6 @@ extension MainFinanceViewController: UITableViewDelegate, UITableViewDataSource 
             cell.view.layer.cornerRadius = 10
             cell.imageRashod.layer.cornerRadius = 5
             cell.selectionStyle = .none
-            
         }
         return cell
     }

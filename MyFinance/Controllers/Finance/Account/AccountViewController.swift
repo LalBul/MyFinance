@@ -10,31 +10,32 @@ import RealmSwift
 import ChameleonFramework
 
 class AccountViewController: UIViewController, UpdateDataViewController {
-    
-    func update() {
-        loadItems()
-    }
 
     @IBOutlet weak var mainTableView: UITableView!
-    @IBOutlet weak var accountName: UILabel!
-    @IBOutlet weak var collectedAccount: UILabel!
-    
+
     weak var delegate: MainFinanceViewController?
     var selectedAccount: Account?
     var accountHistories: Results<AccountHistory>?
 
     var realm = try! Realm()
     
+    func update() {
+        loadItems()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        updateAccountData()
         loadItems()
-        
         mainTableView.dataSource = self
         mainTableView.delegate = self
         mainTableView.showsVerticalScrollIndicator = false
         mainTableView.allowsSelection = false
         mainTableView.separatorStyle = .none
+        navigationController?.navigationBar.barTintColor = view.backgroundColor
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -44,9 +45,6 @@ class AccountViewController: UIViewController, UpdateDataViewController {
     
     func loadItems() {
         accountHistories = selectedAccount?.history.sorted(byKeyPath: "date", ascending: false)
-        if let accountData = selectedAccount {
-            collectedAccount.text = String(accountData.collected) + " " + (selectedAccount?.currency ?? "")
-        }
         mainTableView.reloadData()
     }
     
@@ -64,19 +62,10 @@ class AccountViewController: UIViewController, UpdateDataViewController {
             } catch {print(error)}
         }))
         self.present(alert, animated: true, completion: nil)
-        
-        
     }
     
     @IBAction func addCashToAccount(_ sender: UIBarButtonItem) {
         performSegue(withIdentifier: "goToAddMoneyToAccount", sender: self)
-    }
-    
-    func updateAccountData() {
-        if let account = selectedAccount {
-            accountName.text = account.title
-            collectedAccount.text = String(account.collected) + " \(account.currency)"
-        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -118,6 +107,26 @@ extension AccountViewController: UITableViewDelegate, UITableViewDataSource {
          }
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let header = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 60))
+        header.backgroundColor = .clear
+        let title = UILabel()
+        if let selectedAccount = selectedAccount {
+            title.text = "\(selectedAccount.title): \(selectedAccount.collected) \(selectedAccount.currency)"
+        }
+        title.font = UIFont(name: "HelveticaNeue-Bold", size: 26)
+        title.textAlignment = .center
+        header.addSubview(title)
+        title.edgesToSuperview(excluding: .bottom, insets: UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15), usingSafeArea: true)
+        
+        return header
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 60
+    }
+
 
 }
 

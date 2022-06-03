@@ -350,6 +350,7 @@
 				4C7086C228148EA500080161 /* ItemsTableViewController.swift */,
 				4C7086C428148EAB00080161 /* AddItemViewController.swift */,
 				4C7086C628148EB500080161 /* SelectAccountTableViewController.swift */,
+				4C306ED0269100BE00B22D49 /* HistoryTableViewController.swift */,
 			);
 			path = Items;
 			sourceTree = "<group>";
@@ -389,7 +390,6 @@
 				4C7086C828148FAC00080161 /* Items */,
 				4C0F994C263DA9B000AA8749 /* MainScreenViewController.swift */,
 				4CE2388E2810BB2A00D35F87 /* ChangeCategoryViewController.swift */,
-				4C306ED0269100BE00B22D49 /* HistoryTableViewController.swift */,
 				4CB3C6882645B8140083531D /* AddLimitViewController.swift */,
 				4CC8597127F76E9F006EFAA2 /* LimitViewController.swift */,
 				4C1BC6DC274836E7009D8094 /* MoneyBoxViewController.swift */,
@@ -940,7 +940,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = A39ARW5Y9W;
 				INFOPLIST_FILE = MyFinance/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -966,7 +966,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = A39ARW5Y9W;
 				INFOPLIST_FILE = MyFinance/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

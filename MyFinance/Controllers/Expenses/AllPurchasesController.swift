@@ -70,7 +70,14 @@ extension AllPurchasesController: UITableViewDelegate, UITableViewDataSource, Sw
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         if let item = itemsArray?[indexPath.row] {
-            cell.amount.text = String(item.amount) + " \(item.parentCategory[0].currency )"
+            if item.parentCategory[0].currency == "₽" {
+                cell.amount.text = String(format:"%.2f", item.amount) + " \(item.parentCategory[0].currency)"
+            } else if item.parentCategory[0].currency == "Є" {
+                cell.amount.text = String(format:"%.2f", item.amountInEU) + " \(item.parentCategory[0].currency)"
+            } else if item.parentCategory[0].currency == "$" {
+                cell.amount.text = String(format:"%.2f", item.amountInUS) + " \(item.parentCategory[0].currency)"
+            }
+//            cell.amount.text = String(item.amount) + " \(item.parentCategory[0].currency )"
             cell.name.text = item.title
             cell.date.text = formatter.string(from: item.date)
             cell.category.text = item.parentCategory[0].title
@@ -101,6 +108,5 @@ extension AllPurchasesController: UITableViewDelegate, UITableViewDataSource, Sw
         deleteAction.backgroundColor = HexColor("#9B3636")
         return [deleteAction]
     }
-    
     
 }

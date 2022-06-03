@@ -29,12 +29,12 @@ class AddMoneyToBudgetViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        addHaptic()
         
         buttonsNumebrsCollectionView.delegate = self
         buttonsNumebrsCollectionView.dataSource = self
         buttonsNumebrsCollectionView.backgroundColor = .clear
         buttonsNumebrsCollectionView.register(KeyCell.self, forCellWithReuseIdentifier: cellId)
-        buttonsNumebrsCollectionView.isScrollEnabled = false
         
     }
     
@@ -122,7 +122,7 @@ extension AddMoneyToBudgetViewController:  UICollectionViewDataSource, UICollect
         
         let leftRightPadding = view.frame.width * 0.1
         
-        return .init(top: 16, left: leftRightPadding, bottom: 16, right: leftRightPadding)
+        return .init(top: 30, left: leftRightPadding, bottom: 0, right: leftRightPadding)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

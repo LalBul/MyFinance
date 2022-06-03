@@ -13,29 +13,35 @@ import UPCarouselFlowLayout
 class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var moneyBoxCollectionView: UICollectionView!
-
+    
+    var moneyBoxes: Results<MoneyBox>?
+    let defaults = UserDefaults.standard
+    
+    var realm = try! Realm()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        addHaptic()
+        loadItems()
+        
+        let layout = UPCarouselFlowLayout()
+        layout.itemSize = CGSize(width: 359, height: 128)
+        layout.scrollDirection = .horizontal;
         
         moneyBoxCollectionView.layer.cornerRadius = 10
         moneyBoxCollectionView.dataSource = self
         moneyBoxCollectionView.delegate = self
-        
-        navigationItem.backBarButtonItem?.tintColor = UIColor.white
-        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        self.navigationController?.navigationBar.shadowImage = UIImage()
-        self.navigationController?.navigationBar.isTranslucent = true
-        
-        let layout = UPCarouselFlowLayout()
-        layout.itemSize = CGSize(width: 359, height: 128)
-        
-        layout.scrollDirection = .horizontal;
         moneyBoxCollectionView.collectionViewLayout = layout
         
         purpose.delegate = self
         
-        loadItems()
-        self.tabBarController?.tabBar.isHidden = true
+        navigationItem.backBarButtonItem?.tintColor = UIColor.white
+        
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+    
+        tabBarController?.tabBar.isHidden = true
     }
     
     func loadItems() {
@@ -48,11 +54,6 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
         loadItems()
     }
 
-    var moneyBoxes: Results<MoneyBox>?
-    let defaults = UserDefaults.standard
-    
-    var realm = try! Realm()
-    
     private var tap = UITapGestureRecognizer()
     private var blurEffectView = UIVisualEffectView()
     
@@ -62,6 +63,8 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet weak var purpose: UITextField!
     @IBOutlet weak var addMoneyBoxButton: UIBarButtonItem!
     @IBAction func addMoneyBox(_ sender: UIBarButtonItem) {
+        
+        addHaptic()
         
         viewCreateButton.layer.cornerRadius = 10
         
@@ -88,7 +91,7 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
         view.addSubview(addMoneyBoxView)
         blurEffectView.addGestureRecognizer(tap)
         
-        UIView.animate(withDuration: 0.25) {
+        UIView.animate(withDuration: 0.2) {
             self.addMoneyBoxView.center.y = self.view.center.y
             self.addMoneyBoxView.transform = CGAffineTransform.identity
             self.addMoneyBoxView.alpha = 1
@@ -103,6 +106,7 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func back() {
+        addHaptic()
         blurEffectView.removeFromSuperview()
         tap.isEnabled = false
         UIView.animate(withDuration: 0.2) {
@@ -121,6 +125,7 @@ class MoneyBoxViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @IBAction func addMoneyBoxButton(_ sender: UIButton) {
+        addHaptic()
         let numberFormatter = NumberFormatter()
         numberFormatter.decimalSeparator = ","
         if let amount = purpose.text {
@@ -232,9 +237,7 @@ extension MoneyBoxViewController: DataCollectionProtocol {
         } catch {
             print("Error delete money box")
         }
-       
     }
-    
     
 }
 
